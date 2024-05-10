@@ -17,11 +17,17 @@ __version__ = "0.1.0-alpha"
 # disable ruff "imported but unused" error
 # ruff: noqa: F401
 
-from .common import IncludedNote
+from .common import (
+    CopyIndicator,
+    IncludedNote,
+)
+
+from .exchange import (
+    ExchangedDocument,
+    ExchangedDocumentContext,
+)
 
 from .facturx import (
     CrossIndustryInvoice,
     CrossIndustryInvoiceData,
-    ExchangedDocument,
-    ExchangedDocumentContext,
 )

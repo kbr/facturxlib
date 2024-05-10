@@ -52,7 +52,7 @@ def cii_node(namespace=None):
 class BaseIndicator:
     """Represents an Indicator tag (xs:boolean)."""
 
-    def __init__(self, value):
+    def __init__(self, value: str):  # value = "true" | "false"
         self.value = value
 
     def render(self, parent):
@@ -69,6 +69,15 @@ class TestIndicator(BaseIndicator):
         super().render(node)
 
 
+@cii_node("udt")
+class CopyIndicator(BaseIndicator):
+    """Represents an Indicator."""
+
+    def render(self, parent):
+        node = self.get_node(parent)
+        super().render(node)
+
+
 @cii_node()
 class DateTimeString:
     """Represents a DateString formatted as 'CCYYMMDD'."""
@@ -77,14 +86,6 @@ class DateTimeString:
 
     def __init__(self, value):
         self._value = value
-
-
-@cii_node("udt")
-class IssueDateTime:
-    """Invoice date"""
-
-    def __init__(self, value):
-        self._sub_element = DateTimeString(value)
 
 
 @cii_node("qdt")
