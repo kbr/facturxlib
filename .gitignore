@@ -1,0 +1,9 @@
+.DS_Store
+.mypy_cache
+.nox
+.ruff_cache
+
+*.pyc
+
+facturxlib.egg*
+test.py
