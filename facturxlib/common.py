@@ -24,6 +24,10 @@ def cii_node(namespace=None):
         return ET.SubElement(parent, tag)
 
     def render(self, parent):
+        # if the instance has the flag _do_render and this flag is False,
+        # then skip this node.
+        if not getattr(self, "_do_render", True):
+            return
         node = self.get_node(parent)
         if hasattr(self, "_node_attributes"):
             for key, value in self._node_attributes.items():
@@ -113,8 +117,12 @@ class TypeCode(ValueClass):
 
 
 @cii_node("udt")
-class ID(ValueClass):
+class ID:
     """Represents an udt:IDType"""
+    def __init__(self, value, scheme_id=None):
+        self._value = value
+        if scheme_id is not None:
+            self._node_attributes = {"schemeID": scheme_id}
 
 
 @cii_node("udt")
@@ -286,6 +294,14 @@ class PostalTradeAddress:
             country_sub_division_name=CountrySubDivisionName(address.country_sub_division_name),
         )
 
+@cii_node("ram")
+class SpecifiedTaxRegistration:
+    """Detailed tax information (like VAT)"""
+    def __init__(self, value, scheme_id=None):
+        self._do_render = bool(value)
+        self._sub_element = ID(value, scheme_id)
+
+
 
 @dataclass
 class BaseTradeParty:
@@ -297,8 +313,10 @@ class BaseTradeParty:
 
     name: Name
     postal_address: PostalTradeAddress
+    specified_tax_registration: Optional[SpecifiedTaxRegistration] = None
 
     def render(self, parent):
         node = self.get_node(parent)
         for tag in self.__dict__.values():
-            tag.render(node)
+            if tag:
+                tag.render(node)

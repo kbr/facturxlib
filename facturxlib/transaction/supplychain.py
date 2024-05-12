@@ -6,6 +6,7 @@ from ..common import (
     cii_node,
     Name,
     PostalTradeAddress,
+    SpecifiedTaxRegistration,
 )
 
 from .tradeagreement import (
@@ -117,10 +118,12 @@ class PureBasicTransAction(TransAction):
         node = self.get_node(parent)
 
         seller = SellerTradeParty(
-            name=Name(self.seller.name), postal_address=PostalTradeAddress.from_pure_postal_address(self.seller)
+            name=Name(self.seller.name), postal_address=PostalTradeAddress.from_pure_postal_address(self.seller),
+            specified_tax_registration=SpecifiedTaxRegistration(self.seller.vat, "VAT")
         )
         buyer = BuyerTradeParty(
-            name=Name(self.buyer.name), postal_address=PostalTradeAddress.from_pure_postal_address(self.buyer)
+            name=Name(self.buyer.name), postal_address=PostalTradeAddress.from_pure_postal_address(self.buyer),             specified_tax_registration=SpecifiedTaxRegistration(self.buyer.vat, "VAT")
+
         )
         ApplicableHeaderTradeAgreement(
             seller=seller,
