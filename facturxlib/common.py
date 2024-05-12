@@ -3,6 +3,7 @@ common tags and datastructures.
 """
 
 import xml.etree.ElementTree as ET
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -14,7 +15,10 @@ def cii_node(namespace=None):
     """
 
     def get_node(self, parent):
-        tag = self.__class__.__name__
+        if hasattr(self, "_tag_name"):
+            tag = self._tag_name
+        else:
+            tag = self.__class__.__name__
         if namespace:
             tag = f"{namespace}:{tag}"
         return ET.SubElement(parent, tag)
@@ -82,10 +86,18 @@ class CopyIndicator(BaseIndicator):
 class DateTimeString:
     """Represents a DateString formatted as 'CCYYMMDD'."""
 
-    _node_attributes = {"format": "102"}  # code for CCYYMMDD
+    _node_attributes = {"format": "102"}  # fixed code for CCYYMMDD
 
     def __init__(self, value):
         self._value = value
+
+
+@cii_node("udt")
+class OccurenceDateTime:
+    """Contractual due date of the invoice"""
+
+    def __init__(self, value):
+        self._sub_element = DateTimeString(value)
 
 
 @cii_node("qdt")
@@ -128,6 +140,43 @@ class SubjectCode:
         self._value = value
 
 
+class BaseTotalAmount:
+    """Base class for rendering an amount with a currency-id."""
+
+    def __init__(self, value, currency_id=None):
+        """the currency_id is an optional token."""
+        self._value = value
+        if currency_id:
+            self._node_attributes = {"currencyID": currency_id}
+
+
+@cii_node("udt")
+class TaxBasisTotalAmount(BaseTotalAmount):
+    """
+    The total amount of the invoice without VAT.
+    The invoice total amount without VAT is the sum of invoice line net
+    amount minus sum of discounts on document level plus sum of
+    surcharges on document level.
+    """
+
+
+@cii_node("udt")
+class TaxTotalAmount(BaseTotalAmount):
+    """
+    Invoice total VAT amount.
+    Invoice total VAT amount in accounting currency
+    """
+
+
+@cii_node("udt")
+class GrandTotalAmount(BaseTotalAmount):
+    """
+    Invoice total amount with VAT.
+    The invoice total amount with VAT is the invoice without VAT plus
+    the invoice total VAT amount.
+    """
+
+
 @dataclass
 @cii_node("ram")
 class IncludedNote:
@@ -150,3 +199,138 @@ class IncludedNote:
         for item, obj in zip((self.content_code, self.content, self.subject_code), (ContentCode, Content, SubjectCode)):
             if item is not None:
                 obj(item).render(node)
+
+
+@cii_node("ram")
+class ActualDeliverySupplyChainEvent:
+    """
+    Detailed information about the actual delivery
+
+    `occurence_date`: In Germany, the actual delivery date is mandatory.
+                      Format CCYYMMDD
+
+    """
+
+    def __init__(self, occurence_date):
+        self._sub_element = OccurenceDateTime(occurence_date)
+
+
+@cii_node("udt")
+class Name:
+    """The full formal name of an entity."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@cii_node("udt")
+class PostcodeCode:
+    """The postcode (zip) of an address."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@cii_node("udt")
+class LineOne:
+    """address line one."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@cii_node("udt")
+class LineTwo:
+    """address line two."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@cii_node("udt")
+class LineThree:
+    """address line three."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@cii_node("udt")
+class CityName:
+    """City for the postcode (zip)."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@cii_node("qdt")
+class CountryID:
+    """Country code (like "DE")."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@cii_node("udt")
+class CountrySubDivisionName:
+    """Country sub division."""
+
+    def __init__(self, name):
+        self._value = name
+
+
+@dataclass
+@cii_node("ram")
+class PostalTradeAddress:
+    """The postal address of a trade party."""
+
+    country_id: CountryID
+    postcode: Optional[PostcodeCode] = None
+    line_one: Optional[LineOne] = None
+    line_two: Optional[LineTwo] = None
+    line_three: Optional[LineThree] = None
+    city_name: Optional[CityName] = None
+    country_sub_division_name: Optional[CountrySubDivisionName] = None
+
+    def render(self, parent):
+        node = self.get_node(parent)
+        # same as in self.__dict__.values() but in defined order:
+        for tag in (
+            self.postcode,
+            self.line_one,
+            self.line_two,
+            self.line_three,
+            self.city_name,
+            self.country_id,
+        ):
+            if tag and tag._value:
+                tag.render(node)
+
+    @classmethod
+    def from_pure_postal_address(cls, address):
+        return cls(
+            country_id=CountryID(address.country_id),
+            postcode=PostcodeCode(address.postcode),
+            line_one=LineOne(address.line_one),
+            line_two=LineTwo(address.line_two),
+            line_three=LineThree(address.line_three),
+            city_name=CityName(address.city_name),
+            country_sub_division_name=CountrySubDivisionName(address.country_sub_division_name),
+        )
+
+
+@dataclass
+class BaseTradeParty:
+    """
+    Base implementation for all TradePartys
+    Subclasses must apply the @cii_node decorator to make the
+    `render`-method of this super-class work.
+    """
+
+    name: Name
+    postal_address: PostalTradeAddress
+
+    def render(self, parent):
+        node = self.get_node(parent)
+        for tag in self.__dict__.values():
+            tag.render(node)

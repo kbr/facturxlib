@@ -9,11 +9,11 @@ from dataclasses import (
     field,
 )
 
-from .common import IncludedNote
 from .exchange import (
     ExchangedDocument,
     ExchangedDocumentContext,
 )
+from .transaction.supplychain import TransAction
 
 
 DEFAULT_XML_HEADER = "<?xml version='1.0' encoding='UTF-8' ?>"
@@ -25,11 +25,9 @@ class CrossIndustryInvoiceData:
     Data container for the CII representation of an invoice.
     """
 
+    transaction: TransAction
     exchanged_document: ExchangedDocument
     exchanged_document_context: ExchangedDocumentContext = field(default_factory=ExchangedDocumentContext)
-
-    def __post_init__(self):
-        pass
 
 
 class CrossIndustryInvoice:
@@ -56,33 +54,9 @@ class CrossIndustryInvoice:
         """
         invoice_data.exchanged_document_context.render(self.node)
         invoice_data.exchanged_document.render(self.node)
+        invoice_data.transaction.render(self.node)  # type: ignore[attr-defined]
         ET.indent(self.node)
         content = ET.tostring(self.node, encoding="unicode")
         if self.xml_header:
             return f"{self.xml_header}\n{content}"
         return content
-
-
-if __name__ == "__main__":
-    # test data
-
-    exchanged_document_context = ExchangedDocumentContext(
-        indicator="false",
-        business_process_id="A1",
-    )
-    exchanged_document = ExchangedDocument(
-        invoice_id="010/2024",
-        issue_date="20240510",
-        included_note=IncludedNote(content="Late Shipping"),
-    )
-
-    invoice_data = CrossIndustryInvoiceData(
-        exchanged_document_context=exchanged_document_context,
-        exchanged_document=exchanged_document,
-    )
-    # test call
-    cii = CrossIndustryInvoice()
-    xml_data = cii.render(invoice_data)
-    print()
-    print(xml_data)
-    print()

@@ -31,3 +31,13 @@ from .facturx import (
     CrossIndustryInvoice,
     CrossIndustryInvoiceData,
 )
+
+from .transaction.supplychain import (
+    SupplyChainTradeTransAction,
+    PurePostalAdress,
+    PureBasicTransAction,
+)
+
+# from .transaction.tradeagreement import (
+#     SellerTradeParty,
+# )
