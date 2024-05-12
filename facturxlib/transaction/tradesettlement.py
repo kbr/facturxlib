@@ -16,6 +16,7 @@ from ..common import (
 
 @cii_node("qdt")
 class InvoiceCurrencyCode:
+    """represents a tag specifying a currency code like "EUR"."""
     def __init__(self, value):
         self._value = value
 
@@ -45,7 +46,7 @@ class SpecifiedTradeSettlementHeaderMonetarySummation:
 @dataclass
 @cii_node("ram")
 class ApplicableHeaderTradeSettlement:
-    """ """
+    """Grouping of payment and billing information"""
 
     invoice_currency_code: str
     specified_trade_settlement_header_monetary_summation: SpecifiedTradeSettlementHeaderMonetarySummation
