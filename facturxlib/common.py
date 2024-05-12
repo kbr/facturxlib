@@ -53,6 +53,16 @@ def cii_node(namespace=None):
     return wrapper
 
 
+class ValueClass:
+    """
+    Base class for a class with a single self._value-attribute.
+    """
+
+    def __init__(self, value, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # in case of (multiple-)inheritance
+        self._value = value
+
+
 class BaseIndicator:
     """Represents an Indicator tag (xs:boolean)."""
 
@@ -83,13 +93,10 @@ class CopyIndicator(BaseIndicator):
 
 
 @cii_node()
-class DateTimeString:
+class DateTimeString(ValueClass):
     """Represents a DateString formatted as 'CCYYMMDD'."""
 
     _node_attributes = {"format": "102"}  # fixed code for CCYYMMDD
-
-    def __init__(self, value):
-        self._value = value
 
 
 @cii_node("udt")
@@ -101,43 +108,28 @@ class OccurenceDateTime:
 
 
 @cii_node("qdt")
-class TypeCode:
+class TypeCode(ValueClass):
     """Represents a CodeType."""
 
-    def __init__(self, value):
-        self._value = value
-
 
 @cii_node("udt")
-class ID:
+class ID(ValueClass):
     """Represents an udt:IDType"""
 
-    def __init__(self, value):
-        self._value = value
-
 
 @cii_node("udt")
-class ContentCode:
+class ContentCode(ValueClass):
     """Free text on header level (qualifying the content)"""
 
-    def __init__(self, value):
-        self._value = value
-
 
 @cii_node("udt")
-class Content:
+class Content(ValueClass):
     """Freetext on document level (Content)"""
 
-    def __init__(self, value):
-        self._value = value
-
 
 @cii_node("udt")
-class SubjectCode:
+class SubjectCode(ValueClass):
     """Code for qualifying the free text for the invoice"""
-
-    def __init__(self, value):
-        self._value = value
 
 
 class BaseTotalAmount:
@@ -216,67 +208,43 @@ class ActualDeliverySupplyChainEvent:
 
 
 @cii_node("udt")
-class Name:
+class Name(ValueClass):
     """The full formal name of an entity."""
 
-    def __init__(self, name):
-        self._value = name
-
 
 @cii_node("udt")
-class PostcodeCode:
+class PostcodeCode(ValueClass):
     """The postcode (zip) of an address."""
 
-    def __init__(self, name):
-        self._value = name
-
 
 @cii_node("udt")
-class LineOne:
+class LineOne(ValueClass):
     """address line one."""
 
-    def __init__(self, name):
-        self._value = name
-
 
 @cii_node("udt")
-class LineTwo:
+class LineTwo(ValueClass):
     """address line two."""
 
-    def __init__(self, name):
-        self._value = name
-
 
 @cii_node("udt")
-class LineThree:
+class LineThree(ValueClass):
     """address line three."""
 
-    def __init__(self, name):
-        self._value = name
-
 
 @cii_node("udt")
-class CityName:
+class CityName(ValueClass):
     """City for the postcode (zip)."""
-
-    def __init__(self, name):
-        self._value = name
 
 
 @cii_node("qdt")
-class CountryID:
+class CountryID(ValueClass):
     """Country code (like "DE")."""
-
-    def __init__(self, name):
-        self._value = name
 
 
 @cii_node("udt")
-class CountrySubDivisionName:
+class CountrySubDivisionName(ValueClass):
     """Country sub division."""
-
-    def __init__(self, name):
-        self._value = name
 
 
 @dataclass

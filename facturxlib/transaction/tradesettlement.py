@@ -17,6 +17,7 @@ from ..common import (
 @cii_node("qdt")
 class InvoiceCurrencyCode:
     """represents a tag specifying a currency code like "EUR"."""
+
     def __init__(self, value):
         self._value = value
 
