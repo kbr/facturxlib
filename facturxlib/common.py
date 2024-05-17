@@ -1,5 +1,11 @@
 """
 common tags and datastructures.
+
+Base classes are defined first,
+derived classes and nodes (decorated by @cii_node)
+are defined in alphabetical order.
+Nodes that are also dataclasses are last, because of dependencies from
+other nodes.
 """
 
 import xml.etree.ElementTree as ET
@@ -61,16 +67,6 @@ def cii_node(namespace=None):
     return wrapper
 
 
-class ValueClass:
-    """
-    Base class for a class with a single self._value-attribute.
-    """
-
-    def __init__(self, value, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # in case of (multiple-)inheritance
-        self._value = value
-
-
 class BaseIndicator:
     """Represents an Indicator tag (xs:boolean)."""
 
@@ -82,13 +78,72 @@ class BaseIndicator:
         node.text = self.value
 
 
-@cii_node("udt")
-class TestIndicator(BaseIndicator):
-    """Represents an Indicator."""
+class BaseTotalAmount:
+    """Base class for rendering an amount with a currency-id."""
 
-    def render(self, parent):
-        node = self.get_node(parent)
-        super().render(node)
+    def __init__(self, value, currency_id=None):
+        """the currency_id is an optional token."""
+        self._value = value
+        if currency_id:
+            self._node_attributes = {"currencyID": currency_id}
+
+
+class ValueClass:
+    """
+    Base class for a class with a single self._value-attribute.
+    """
+
+    def __init__(self, value, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # in case of (multiple-)inheritance
+        self._value = value
+
+
+# ====================================================
+# alphabetical definition of nodes
+
+
+@cii_node("ram")
+class ActualDeliverySupplyChainEvent:
+    """
+    Detailed information about the actual delivery
+
+    `occurence_date`: In Germany, the actual delivery date is mandatory.
+                      Format CCYYMMDD
+
+    """
+
+    def __init__(self, occurence_date):
+        self._sub_element = OccurenceDateTime(occurence_date)
+
+
+@cii_node("udt")
+class BasisAmount(ValueClass):
+    """taxable amount (aka net price)."""
+
+
+@cii_node("udt")
+class CalculatedAmount(ValueClass):
+    """Calculated tax related amount."""
+
+
+@cii_node("qdt")
+class CategoryCode(ValueClass):
+    """Coded indication of a sales tax category."""
+
+
+@cii_node("udt")
+class CityName(ValueClass):
+    """City for the postcode (zip)."""
+
+
+@cii_node("udt")
+class Content(ValueClass):
+    """Freetext on document level (Content)"""
+
+
+@cii_node("udt")
+class ContentCode(ValueClass):
+    """Free text on header level (qualifying the content)"""
 
 
 @cii_node("udt")
@@ -100,6 +155,16 @@ class CopyIndicator(BaseIndicator):
         super().render(node)
 
 
+@cii_node("qdt")
+class CountryID(ValueClass):
+    """Country code (like "DE")."""
+
+
+@cii_node("udt")
+class CountrySubDivisionName(ValueClass):
+    """Country sub division."""
+
+
 @cii_node()
 class DateTimeString(ValueClass):
     """Represents a DateString formatted as 'CCYYMMDD'."""
@@ -108,16 +173,12 @@ class DateTimeString(ValueClass):
 
 
 @cii_node("udt")
-class OccurenceDateTime:
-    """Contractual due date of the invoice"""
-
-    def __init__(self, value):
-        self._sub_element = DateTimeString(value)
-
-
-@cii_node("qdt")
-class TypeCode(ValueClass):
-    """Represents a CodeType."""
+class GrandTotalAmount(BaseTotalAmount):
+    """
+    Invoice total amount with VAT.
+    The invoice total amount with VAT is the invoice without VAT plus
+    the invoice total VAT amount.
+    """
 
 
 @cii_node("udt")
@@ -136,28 +197,55 @@ class LineID(ValueClass):
 
 
 @cii_node("udt")
-class ContentCode(ValueClass):
-    """Free text on header level (qualifying the content)"""
+class LineOne(ValueClass):
+    """address line one."""
 
 
 @cii_node("udt")
-class Content(ValueClass):
-    """Freetext on document level (Content)"""
+class LineTwo(ValueClass):
+    """address line two."""
+
+
+@cii_node("udt")
+class LineThree(ValueClass):
+    """address line three."""
+
+
+@cii_node("udt")
+class Name(ValueClass):
+    """The full formal name of an entity."""
+
+
+@cii_node("udt")
+class OccurenceDateTime:
+    """Contractual due date of the invoice"""
+
+    def __init__(self, value):
+        self._sub_element = DateTimeString(value)
+
+
+@cii_node("udt")
+class PostcodeCode(ValueClass):
+    """The postcode (zip) of an address."""
+
+
+@cii_node("udt")
+class RateApplicablePercent(ValueClass):
+    """Percent Value like 19.00 for 19%"""
+
+
+@cii_node("ram")
+class SpecifiedTaxRegistration:
+    """Detailed tax information (like VAT)"""
+
+    def __init__(self, value, scheme_id=None):
+        self._do_render = bool(value)
+        self._sub_element = ID(value, scheme_id)
 
 
 @cii_node("udt")
 class SubjectCode(ValueClass):
     """Code for qualifying the free text for the invoice"""
-
-
-class BaseTotalAmount:
-    """Base class for rendering an amount with a currency-id."""
-
-    def __init__(self, value, currency_id=None):
-        """the currency_id is an optional token."""
-        self._value = value
-        if currency_id:
-            self._node_attributes = {"currencyID": currency_id}
 
 
 @cii_node("udt")
@@ -179,32 +267,21 @@ class TaxTotalAmount(BaseTotalAmount):
 
 
 @cii_node("udt")
-class GrandTotalAmount(BaseTotalAmount):
-    """
-    Invoice total amount with VAT.
-    The invoice total amount with VAT is the invoice without VAT plus
-    the invoice total VAT amount.
-    """
+class TestIndicator(BaseIndicator):
+    """Represents an Indicator."""
 
-
-@cii_node("udt")
-class BasisAmount(ValueClass):
-    """taxable amount (aka net price)."""
-
-
-@cii_node("udt")
-class CalculatedAmount(ValueClass):
-    """Calculated tax related amount."""
+    def render(self, parent):
+        node = self.get_node(parent)
+        super().render(node)
 
 
 @cii_node("qdt")
-class CategoryCode(ValueClass):
-    """Coded indication of a sales tax category."""
+class TypeCode(ValueClass):
+    """Represents a CodeType."""
 
 
-@cii_node("udt")
-class RateApplicablePercent(ValueClass):
-    """Percent Value like 19.00 for 19%"""
+# ========================================================
+# definition of classes with dependencies from other nodes
 
 
 @dataclass
@@ -229,60 +306,6 @@ class IncludedNote:
         for item, obj in zip((self.content_code, self.content, self.subject_code), (ContentCode, Content, SubjectCode)):
             if item is not None:
                 obj(item).render(node)
-
-
-@cii_node("ram")
-class ActualDeliverySupplyChainEvent:
-    """
-    Detailed information about the actual delivery
-
-    `occurence_date`: In Germany, the actual delivery date is mandatory.
-                      Format CCYYMMDD
-
-    """
-
-    def __init__(self, occurence_date):
-        self._sub_element = OccurenceDateTime(occurence_date)
-
-
-@cii_node("udt")
-class Name(ValueClass):
-    """The full formal name of an entity."""
-
-
-@cii_node("udt")
-class PostcodeCode(ValueClass):
-    """The postcode (zip) of an address."""
-
-
-@cii_node("udt")
-class LineOne(ValueClass):
-    """address line one."""
-
-
-@cii_node("udt")
-class LineTwo(ValueClass):
-    """address line two."""
-
-
-@cii_node("udt")
-class LineThree(ValueClass):
-    """address line three."""
-
-
-@cii_node("udt")
-class CityName(ValueClass):
-    """City for the postcode (zip)."""
-
-
-@cii_node("qdt")
-class CountryID(ValueClass):
-    """Country code (like "DE")."""
-
-
-@cii_node("udt")
-class CountrySubDivisionName(ValueClass):
-    """Country sub division."""
 
 
 @dataclass
@@ -323,15 +346,6 @@ class PostalTradeAddress:
             city_name=CityName(address.city_name),
             country_sub_division_name=CountrySubDivisionName(address.country_sub_division_name),
         )
-
-
-@cii_node("ram")
-class SpecifiedTaxRegistration:
-    """Detailed tax information (like VAT)"""
-
-    def __init__(self, value, scheme_id=None):
-        self._do_render = bool(value)
-        self._sub_element = ID(value, scheme_id)
 
 
 @dataclass
