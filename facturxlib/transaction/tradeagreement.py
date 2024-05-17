@@ -31,8 +31,3 @@ class ApplicableHeaderTradeAgreement:
 
     seller: SellerTradeParty
     buyer: BuyerTradeParty
-
-    def render(self, parent):
-        node = self.get_node(parent)
-        for tag in self.__dict__.values():
-            tag.render(node)

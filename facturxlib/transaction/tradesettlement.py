@@ -8,9 +8,14 @@ from typing import Optional, Sequence
 
 from ..common import (
     cii_node,
+    BasisAmount,
+    CalculatedAmount,
+    CategoryCode,
     GrandTotalAmount,
+    RateApplicablePercent,
     TaxBasisTotalAmount,
     TaxTotalAmount,
+    TypeCode,
 )
 
 
@@ -46,14 +51,41 @@ class SpecifiedTradeSettlementHeaderMonetarySummation:
 
 @dataclass
 @cii_node("ram")
+class ApplicableTradeTax:
+    """
+    VAT Breakdown
+    Detailed information on tax data. A group of business terms
+    providing information about VAT breakdown by different categories,
+    rates and exemption reasons.
+
+    `calculated_amount`: the applied tax
+    `type_code`: VAT type code (fixed value = "VAT")
+    `basis_amount`: (aka net price)
+    `category_code`: Coded indication of a sales tax category
+            (i.e. "S" for standard rate or "AE" for VAT reverse charge)
+    """
+
+    calculated_amount: CalculatedAmount
+    type_code: TypeCode
+    basis_amount: BasisAmount
+    category_code: CategoryCode
+    rate_applicable_percent: RateApplicablePercent
+
+
+@dataclass
+@cii_node("ram")
 class ApplicableHeaderTradeSettlement:
     """Grouping of payment and billing information"""
 
     invoice_currency_code: str
+    applicable_trade_taxes: Sequence[ApplicableTradeTax]
     specified_trade_settlement_header_monetary_summation: SpecifiedTradeSettlementHeaderMonetarySummation
 
     def render(self, parent):
         node = self.get_node(parent)
 
         InvoiceCurrencyCode(self.invoice_currency_code).render(node)
+        for trade_tax in self.applicable_trade_taxes:
+            # breakpoint()
+            trade_tax.render(node)
         self.specified_trade_settlement_header_monetary_summation.render(node)

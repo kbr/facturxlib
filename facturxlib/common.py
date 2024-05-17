@@ -34,17 +34,21 @@ def cii_node(namespace=None):
                 node.set(key, value)
         if hasattr(self, "_value"):
             node.text = self._value
-        elif hasattr(self, "_sub_element"):
-            self._sub_element.render(node)
-        else:
-            # fallback for something else
-            self._render(node)
+        # for all attributes: try to render them
+        for tag in self.__dict__.values():
+            try:
+                tag.render(node)
+            except AttributeError:
+                # nothing to render, just skip
+                pass
+        # chance to do some additonal stuff
+        self._render(node)
 
     def _render(self, node):
         """
         Specific render-fallback. Overload this method in case of need.
         """
-        print(f"render: {self.__class__.__name__}")
+        pass
 
     def wrapper(cls):
         cls.get_node = get_node
@@ -119,10 +123,16 @@ class TypeCode(ValueClass):
 @cii_node("udt")
 class ID:
     """Represents an udt:IDType"""
+
     def __init__(self, value, scheme_id=None):
         self._value = value
         if scheme_id is not None:
             self._node_attributes = {"schemeID": scheme_id}
+
+
+@cii_node("udt")
+class LineID(ValueClass):
+    """Line number"""
 
 
 @cii_node("udt")
@@ -175,6 +185,26 @@ class GrandTotalAmount(BaseTotalAmount):
     The invoice total amount with VAT is the invoice without VAT plus
     the invoice total VAT amount.
     """
+
+
+@cii_node("udt")
+class BasisAmount(ValueClass):
+    """taxable amount (aka net price)."""
+
+
+@cii_node("udt")
+class CalculatedAmount(ValueClass):
+    """Calculated tax related amount."""
+
+
+@cii_node("qdt")
+class CategoryCode(ValueClass):
+    """Coded indication of a sales tax category."""
+
+
+@cii_node("udt")
+class RateApplicablePercent(ValueClass):
+    """Percent Value like 19.00 for 19%"""
 
 
 @dataclass
@@ -294,13 +324,14 @@ class PostalTradeAddress:
             country_sub_division_name=CountrySubDivisionName(address.country_sub_division_name),
         )
 
+
 @cii_node("ram")
 class SpecifiedTaxRegistration:
     """Detailed tax information (like VAT)"""
+
     def __init__(self, value, scheme_id=None):
         self._do_render = bool(value)
         self._sub_element = ID(value, scheme_id)
-
 
 
 @dataclass
@@ -314,9 +345,3 @@ class BaseTradeParty:
     name: Name
     postal_address: PostalTradeAddress
     specified_tax_registration: Optional[SpecifiedTaxRegistration] = None
-
-    def render(self, parent):
-        node = self.get_node(parent)
-        for tag in self.__dict__.values():
-            if tag:
-                tag.render(node)

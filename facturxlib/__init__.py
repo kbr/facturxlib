@@ -36,6 +36,7 @@ from .transaction.supplychain import (
     SupplyChainTradeTransAction,
     PurePostalAdress,
     PureBasicTransAction,
+    PureLineItem,
 )
 
 # from .transaction.tradeagreement import (
