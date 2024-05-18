@@ -8,6 +8,7 @@ from typing import Optional
 from ..common import (
     cii_node,
     BasisQuantity,
+    BilledQuantity,
     ChargeAmount,
     LineID,
     Name,
@@ -69,6 +70,14 @@ class SpecifiedLineTradeAgreement:
 
 @dataclass
 @cii_node("ram")
+class SpecifiedLineTradeDelivery:
+    """Grouping of delivery details on line level"""
+    billed_quantity: BilledQuantity
+
+
+
+@dataclass
+@cii_node("ram")
 class IncludedSupplyChainTradeLineItem:
     """
     An aggregation of business terms containing information about
@@ -79,6 +88,7 @@ class IncludedSupplyChainTradeLineItem:
     associated_document_line_document: AssociatedDocumentLineDocument
     specified_trade_product: SpecifiedTradeProduct
     specified_line_trade_agreement: SpecifiedLineTradeAgreement
+    specified_line_trade_delivery: SpecifiedLineTradeDelivery
 
     @classmethod
     def from_basic_profile(cls, line_id, name, charge_amount, billed_quantity, line_total_amount,
@@ -91,5 +101,8 @@ class IncludedSupplyChainTradeLineItem:
                 charge_amount=charge_amount,
                 basis_quantity=basis_quantity,
                 unit_code=unit_code,
+            ),
+            specified_line_trade_delivery=SpecifiedLineTradeDelivery(
+                billed_quantity=BilledQuantity(billed_quantity, unit_code)
             )
         )
