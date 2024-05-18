@@ -194,11 +194,13 @@ class PureBasicTransAction(TransAction):
         node = self.get_node(parent)
 
         for line in self.lines:
-            line_item = IncludedSupplyChainTradeLineItem(
-                associated_document_line_document=AssociatedDocumentLineDocument(line_id=LineID(line.line_id)),
-                specified_trade_product=SpecifiedTradeProduct(name=Name(line.name)),
-            )
-            line_item.render(node)
+            IncludedSupplyChainTradeLineItem.from_basic_profile(
+                line_id=line.line_id,
+                name=line.name,
+                charge_amount=line.charge_amount,
+                billed_quantity=line.billed_quantity,
+                line_total_amount=line.line_total_amount,
+            ).render(node)
 
         seller = SellerTradeParty(
             name=Name(self.seller.name),
@@ -233,7 +235,6 @@ class PureBasicTransAction(TransAction):
         trade_taxes = []
         for item in self.trade_taxes:
             trade_taxes.append(
-
                 ApplicableTradeTax(
                     calculated_amount=CalculatedAmount(item.tax_amount),
                     type_code=TypeCode(item.type_code),
@@ -241,15 +242,6 @@ class PureBasicTransAction(TransAction):
                     category_code=CategoryCode(item.category_code),
                     rate_applicable_percent=RateApplicablePercent(item.percent_rate),
                 )
-
-
-#                 ApplicableTradeTax.from_pure_pure_basic_trade_tax(
-#                     net_amount=item.net_amount,
-#                     tax_amount=item.tax_amount,
-#                     percent_rate=item.percent_rate,
-#                     category_code=item.category_code,
-#                     type_code=item.type_code
-#                 )
             )
 
         ApplicableHeaderTradeSettlement(
