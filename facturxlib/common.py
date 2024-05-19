@@ -87,12 +87,14 @@ class BaseTotalAmount:
         if currency_id:
             self._node_attributes = {"currencyID": currency_id}
 
+
 class QuantityClass:
     """Base class for a Quantity with required Unit Code"""
 
     def __init__(self, value, unit_code):
         self._value = value
         self._node_attributes = {"unitCode": unit_code}
+
 
 class ValueClass:
     """
@@ -126,9 +128,11 @@ class ActualDeliverySupplyChainEvent:
 class BasisAmount(ValueClass):
     """taxable amount (aka net price)."""
 
+
 @cii_node("udt")
 class BasisQuantity(QuantityClass):
     """Represents an udt:Item Base Quantity with required Unit Code"""
+
 
 @cii_node("udt")
 class BilledQuantity(QuantityClass):
@@ -144,9 +148,11 @@ class CalculatedAmount(ValueClass):
 class CategoryCode(ValueClass):
     """Coded indication of a sales tax category."""
 
+
 @cii_node("udt")
 class ChargeAmount(ValueClass):
     """Item net price."""
+
 
 @cii_node("udt")
 class CityName(ValueClass):

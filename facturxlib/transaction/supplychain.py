@@ -7,7 +7,6 @@ from ..common import (
     BasisAmount,
     CalculatedAmount,
     CategoryCode,
-    LineID,
     Name,
     PostalTradeAddress,
     RateApplicablePercent,
@@ -26,10 +25,7 @@ from .tradedelivery import (
 )
 
 from .tradeline import (
-    AssociatedDocumentLineDocument,
     IncludedSupplyChainTradeLineItem,
-    SpecifiedLineTradeAgreement,
-    SpecifiedTradeProduct,
 )
 
 from .tradesettlement import (
@@ -113,7 +109,8 @@ class PureLineItem:
                the library makes no calculations) .
     `name`: description of the invoiced item
     `charge_amount`: net-price of the item
-    `billed_quantity`: Invoiced quantity of items
+    `basis_quantity`: items base quantity (quantity defined by unit_code)
+    `billed_quantity`: Invoiced quantity of items (quantity defined by unit_code)
     `line_total_amount`: Invoiced line net amount
 
     optional arguments:
@@ -127,16 +124,24 @@ class PureLineItem:
     `category_code`: VAT type code on line level, i.e. "S" for standard rate
                  or "AE" for VAT reverse charge or "G" for free export item
                  without a charged tax. Defaults to "S".
+    `calculated_amount`: calculated tax of the line item (required if multiple
+                 tax-rates use in a single invoice).
+    `type_code`: fixed value: "VAT"
+    `rate_applicable_percent`: VAT percent rate as string (like "19.00")
     """
 
     line_id: str
     name: str
     charge_amount: str
+    basis_quantity: str
     billed_quantity: str
     line_total_amount: str
     occurence_date: Optional[str] = None  # optional but mandatory in germany
     unit_code: str = "H87"
     category_code: str = "S"
+    calculated_amount: Optional[str] = None
+    type_code: str = "VAT"
+    rate_applicable_percent: Optional[str] = None
 
 
 @dataclass
@@ -194,13 +199,7 @@ class PureBasicTransAction(TransAction):
         node = self.get_node(parent)
 
         for line in self.lines:
-            IncludedSupplyChainTradeLineItem.from_basic_profile(
-                line_id=line.line_id,
-                name=line.name,
-                charge_amount=line.charge_amount,
-                billed_quantity=line.billed_quantity,
-                line_total_amount=line.line_total_amount,
-            ).render(node)
+            IncludedSupplyChainTradeLineItem.from_basic_profile(line=line).render(node)
 
         seller = SellerTradeParty(
             name=Name(self.seller.name),
@@ -227,11 +226,7 @@ class PureBasicTransAction(TransAction):
 
         # prepare the ApplicableTradeTax instances:
         if not self.trade_taxes:
-            self.trade_taxes.append(
-                PureBasicTradeTax(
-                    net_amount=self.net_total, tax_amount=self.tax_total
-                )
-            )
+            self.trade_taxes.append(PureBasicTradeTax(net_amount=self.net_total, tax_amount=self.tax_total))
         trade_taxes = []
         for item in self.trade_taxes:
             trade_taxes.append(
