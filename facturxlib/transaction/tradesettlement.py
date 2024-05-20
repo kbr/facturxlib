@@ -8,13 +8,19 @@ from typing import Optional, Sequence
 
 from ..common import (
     cii_node,
+    AllowanceTotalAmount,
     BasisAmount,
     CalculatedAmount,
     CategoryCode,
+    ChargeTotalAmount,
+    DuePayableAmount,
     GrandTotalAmount,
+    LineTotalAmount,
     RateApplicablePercent,
+    RoundingAmount,
     TaxBasisTotalAmount,
     TaxTotalAmount,
+    TotalPrepaidAmount,
     TypeCode,
 )
 
@@ -34,19 +40,34 @@ class SpecifiedTradeSettlementHeaderMonetarySummation:
     Detailed information about document totals
     """
 
+    line_total_amount: str
     tax_basis_total_amount: Sequence[tuple[str, str]]
     grand_total_amount: Sequence[tuple[str, str]]
+    total_prepaid_amount: str
+    due_payable_amount: str
     tax_total_amount: Optional[Sequence[tuple[str, str]]] = field(default_factory=list)
+    charge_total_amount: str = ""
+    allowance_total_amount: str = ""
+    rounding_amount: str = ""
 
     def render(self, parent):
         node = self.get_node(parent)
 
+        LineTotalAmount(self.line_total_amount).render(node)
+        if self.charge_total_amount:
+            ChargeTotalAmount(self.charge_total_amount).render(node)
+        if self.allowance_total_amount:
+            AllowanceTotalAmount(self.allowance_total_amount).render(node)
         for value, unit in self.tax_basis_total_amount:
             TaxBasisTotalAmount(value, unit).render(node)
         for value, unit in self.tax_total_amount:
             TaxTotalAmount(value, unit).render(node)
+        if self.rounding_amount:
+            RoundingAmount(self.rounding_amount).render(node)
         for value, unit in self.grand_total_amount:
             GrandTotalAmount(value, unit).render(node)
+        TotalPrepaidAmount(self.total_prepaid_amount).render(node)
+        DuePayableAmount(self.due_payable_amount).render(node)
 
 
 @dataclass

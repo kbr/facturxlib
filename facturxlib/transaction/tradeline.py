@@ -13,6 +13,7 @@ from ..common import (
     CategoryCode,
     ChargeAmount,
     LineID,
+    LineTotalAmount,
     Name,
     RateApplicablePercent,
     TypeCode,
@@ -145,6 +146,21 @@ class SpecifiedLineTradeSettlement:
 
 @dataclass
 @cii_node("ram")
+class SpecifiedTradeSettlementLineMonetarySummation:
+    """
+    Detailed information about item totals
+    """
+
+    line_total_amount: LineTotalAmount
+
+    @classmethod
+    def from_basic_profile(cls, line):
+        """line is a `supplychain.PureLineItem` instance."""
+        return cls(line_total_amount=LineTotalAmount(line.line_total_amount))
+
+
+@dataclass
+@cii_node("ram")
 class IncludedSupplyChainTradeLineItem:
     """
     An aggregation of business terms containing information about
@@ -157,6 +173,7 @@ class IncludedSupplyChainTradeLineItem:
     specified_line_trade_agreement: SpecifiedLineTradeAgreement
     specified_line_trade_delivery: SpecifiedLineTradeDelivery
     specified_line_trade_settlement: SpecifiedLineTradeSettlement
+    specified_line_settlement_line_monetary_summation: SpecifiedTradeSettlementLineMonetarySummation
 
     @classmethod
     def from_basic_profile(cls, line):
@@ -169,4 +186,7 @@ class IncludedSupplyChainTradeLineItem:
                 billed_quantity=BilledQuantity(line.billed_quantity, line.unit_code)
             ),
             specified_line_trade_settlement=SpecifiedLineTradeSettlement.from_basic_profile(line),
+            specified_line_settlement_line_monetary_summation=SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(
+                line
+            ),
         )

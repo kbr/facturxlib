@@ -125,6 +125,12 @@ class ActualDeliverySupplyChainEvent:
 
 
 @cii_node("udt")
+class AllowanceTotalAmount(ValueClass):
+    """Total amount of discounts."""
+
+
+
+@cii_node("udt")
 class BasisAmount(ValueClass):
     """taxable amount (aka net price)."""
 
@@ -152,6 +158,10 @@ class CategoryCode(ValueClass):
 @cii_node("udt")
 class ChargeAmount(ValueClass):
     """Item net price."""
+
+@cii_node("udt")
+class ChargeTotalAmount(ValueClass):
+    """Sum of all surcharges on document level in the invoice."""
 
 
 @cii_node("udt")
@@ -186,6 +196,11 @@ class CountryID(ValueClass):
 @cii_node("udt")
 class CountrySubDivisionName(ValueClass):
     """Country sub division."""
+
+
+@cii_node("udt")
+class DuePayableAmount(ValueClass):
+    """Amount due for payment."""
 
 
 @cii_node()
@@ -235,6 +250,11 @@ class LineThree(ValueClass):
 
 
 @cii_node("udt")
+class LineTotalAmount(ValueClass):
+    """Sum of invoice line total amount."""
+
+
+@cii_node("udt")
 class Name(ValueClass):
     """The full formal name of an entity."""
 
@@ -255,6 +275,18 @@ class PostcodeCode(ValueClass):
 @cii_node("udt")
 class RateApplicablePercent(ValueClass):
     """Percent Value like 19.00 for 19%"""
+
+@cii_node("udt")
+class RoundingAmount(ValueClass):
+    """
+    The amount to be added to the invoice total to round the amount to
+    be paid. In some European countries the calculated invoice total
+    amount are rounded to 5 cents. The resulting difference of the
+    amount can be depicted in the element RoundingAmount by the
+    different receipt totals. The rounding rules of the particular
+    country have to be respected since those rules are not consistent in
+    Europe.
+    """
 
 
 @cii_node("ram")
@@ -296,6 +328,11 @@ class TestIndicator(BaseIndicator):
     def render(self, parent):
         node = self.get_node(parent)
         super().render(node)
+
+
+@cii_node("udt")
+class TotalPrepaidAmount(ValueClass):
+    """Paid amount."""
 
 
 @cii_node("qdt")

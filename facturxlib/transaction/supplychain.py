@@ -150,8 +150,8 @@ class PureBasicTradeTax:
     Collection class for an ApplicableTradeTax entry.
     """
 
-    net_amount: str
-    tax_amount: str
+    tax_basis_total_amount: str
+    tax_total_amount: str
     percent_rate: str = "19.00"
     category_code: str = "S"
     type_code: str = "VAT"
@@ -164,14 +164,30 @@ class PureBasicTransAction(TransAction):
     nodes of the BASIC profile with a cardinality of at least 1. With
     the additional `lines` argument basic invoices can get created.
 
-    `net_total`: invoice total net price ("#.00")
-    `tax_total`: invoice total taxes ("#.00")
-    `grand_total`: invoice total (sum of `net_total` and `tax_total`)("#.00")
+    required:
+    `line_total_amount`: Total amount of all invoice lines (format: "#.00")
+            If there are no tax-free invoice items this should be the same
+            as `tax_basis_total_amount`.
+    `tax_basis_total_amount`: Invoice total amount without VAT (format: "#.00")
+    `tax_total_amount`: invoice total taxes ("#.00")
+    `grand_total_amount`: invoice total (sum of `net_total` and `tax_total`)("#.00")
+    `due_payable_amount`: Amount due for payment
     `seller`: a `PurePostalAdress` instance about the seller
     `buyer`: a `PurePostalAdress` instance about the buyer
 
     optional:
     `invoice_currency`: defaults to "EUR"
+    `total_prepaid_amount`: Sum of amount paid in advance (defaults to "0.00")
+    `charge_total_amount`: total on surcharges on document level (defaults to "")
+            (will not get rendered when empty).
+    `allowance_total_amount`: Total amount of discounts.
+    `rounding_amount`: The amount to be added to the invoice total to round the
+            amount to be paid. In some European countries the calculated
+            invoice total amount are rounded to 5 cents. The resulting
+            difference of the amount can be depicted in the element
+            RoundingAmount by the different receipt totals. The rounding
+            rules of the particular country have to be respected since
+            those rules are not consistent in Europe.
     `occurence_date`: if given a datetime string of format CCYYMMDD.
                       Can be specified here on document level.
     `lines`: a squence of `PureLineItem` instances. Optional by the specification.
@@ -185,12 +201,18 @@ class PureBasicTransAction(TransAction):
 
     """
 
-    net_total: str
-    tax_total: str
-    grand_total: str
+    line_total_amount: str
+    tax_basis_total_amount: str
+    tax_total_amount: str
+    grand_total_amount: str
+    due_payable_amount: str
     seller: PurePostalAdress
     buyer: PurePostalAdress
     invoice_currency: str = "EUR"
+    total_prepaid_amount: str = "0.00"
+    charge_total_amount: str = ""  # suppressed in output if not set
+    allowance_total_amount: str = ""  # suppressed in output if not set
+    rounding_amount: str = ""  # suppressed in output if not set
     occurence_date: Optional[str] = None  # optional but mandatory in germany
     lines: Optional[Sequence[PureLineItem]] = field(default_factory=list)
     trade_taxes: Optional[Sequence[PureBasicTradeTax]] = field(default_factory=list)
@@ -219,21 +241,31 @@ class PureBasicTransAction(TransAction):
         ApplicableHeaderTradeDelivery(occurence_date=self.occurence_date).render(node)
 
         monetary_summation = SpecifiedTradeSettlementHeaderMonetarySummation(
-            tax_basis_total_amount=[(self.net_total, self.invoice_currency)],
-            tax_total_amount=[(self.tax_total, self.invoice_currency)],
-            grand_total_amount=[(self.grand_total, self.invoice_currency)],
+            line_total_amount=self.line_total_amount,
+            charge_total_amount=self.charge_total_amount,
+            allowance_total_amount=self.allowance_total_amount,
+            tax_basis_total_amount=[(self.tax_basis_total_amount, self.invoice_currency)],
+            tax_total_amount=[(self.tax_total_amount, self.invoice_currency)],
+            grand_total_amount=[(self.grand_total_amount, self.invoice_currency)],
+            due_payable_amount=self.due_payable_amount,
+            total_prepaid_amount=self.total_prepaid_amount,
+            rounding_amount=self.rounding_amount,
         )
 
         # prepare the ApplicableTradeTax instances:
         if not self.trade_taxes:
-            self.trade_taxes.append(PureBasicTradeTax(net_amount=self.net_total, tax_amount=self.tax_total))
+            self.trade_taxes.append(
+                PureBasicTradeTax(
+                    tax_basis_total_amount=self.tax_basis_total_amount, tax_total_amount=self.tax_total_amount
+                )
+            )
         trade_taxes = []
         for item in self.trade_taxes:
             trade_taxes.append(
                 ApplicableTradeTax(
-                    calculated_amount=CalculatedAmount(item.tax_amount),
+                    calculated_amount=CalculatedAmount(item.tax_total_amount),
                     type_code=TypeCode(item.type_code),
-                    basis_amount=BasisAmount(item.net_amount),
+                    basis_amount=BasisAmount(item.tax_basis_total_amount),
                     category_code=CategoryCode(item.category_code),
                     rate_applicable_percent=RateApplicablePercent(item.percent_rate),
                 )
