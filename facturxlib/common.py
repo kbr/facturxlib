@@ -10,8 +10,8 @@ other nodes.
 
 import xml.etree.ElementTree as ET
 
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, Sequence
 
 
 def cii_node(namespace=None):
@@ -78,32 +78,62 @@ class BaseIndicator:
         node.text = self.value
 
 
-class BaseTotalAmount:
-    """Base class for rendering an amount with a currency-id."""
-
-    def __init__(self, value, currency_id=None):
-        """the currency_id is an optional token."""
-        self._value = value
-        if currency_id:
-            self._node_attributes = {"currencyID": currency_id}
-
-
-class QuantityClass:
-    """Base class for a Quantity with required Unit Code"""
-
-    def __init__(self, value, unit_code):
-        self._value = value
-        self._node_attributes = {"unitCode": unit_code}
-
-
 class ValueClass:
     """
     Base class for a class with a single self._value-attribute.
     """
 
-    def __init__(self, value, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # in case of (multiple-)inheritance
+    def __init__(self, value):
         self._value = value
+
+
+class BaseTotalAmount(ValueClass):
+    """Base class for rendering an amount with a currency-id."""
+
+    def __init__(self, value, currency_id=None):
+        """the currency_id is an optional token."""
+        super().__init__(value)
+        if currency_id:
+            self._node_attributes = {"currencyID": currency_id}
+
+
+class QuantityClass(ValueClass):
+    """Base class for a Quantity with required Unit Code"""
+
+    def __init__(self, value, unit_code):
+        super().__init__(value)
+        self._node_attributes = {"unitCode": unit_code}
+
+
+class SchemeClass(ValueClass):
+    """Base class for a value with an optional schemeID token."""
+
+    def __init__(self, value, scheme_id=None):
+        super().__init__(value)
+        if scheme_id:
+            self._node_attributes = {"schemeID": scheme_id}
+
+
+@cii_node("udt")
+class CompleteNumber(ValueClass):
+    """
+    Contact phone number.
+    Used by `UniversalCommunication` and in turn by
+    `TelephoneUniversalCommunication` and `FaxUniversalCommunication`.
+    """
+
+
+class UniversalCommunication:
+    """
+    Details about the contact number.
+    The number itself is rendered by a subnode.
+    So render this node only when a number is given.
+    The Subclass must be decorated by `@cii_node`.
+    """
+
+    def __init__(self, number):
+        self._do_render = bool(number)
+        self._sub_element = CompleteNumber(number)
 
 
 # ====================================================
@@ -127,7 +157,6 @@ class ActualDeliverySupplyChainEvent:
 @cii_node("udt")
 class AllowanceTotalAmount(ValueClass):
     """Total amount of discounts."""
-
 
 
 @cii_node("udt")
@@ -158,6 +187,7 @@ class CategoryCode(ValueClass):
 @cii_node("udt")
 class ChargeAmount(ValueClass):
     """Item net price."""
+
 
 @cii_node("udt")
 class ChargeTotalAmount(ValueClass):
@@ -198,16 +228,42 @@ class CountrySubDivisionName(ValueClass):
     """Country sub division."""
 
 
-@cii_node("udt")
-class DuePayableAmount(ValueClass):
-    """Amount due for payment."""
-
-
 @cii_node()
 class DateTimeString(ValueClass):
     """Represents a DateString formatted as 'CCYYMMDD'."""
 
     _node_attributes = {"format": "102"}  # fixed code for CCYYMMDD
+
+
+@cii_node("udt")
+class DepartmentName(ValueClass):
+    """Department Name (of contact person)."""
+
+
+@cii_node("udt")
+class Description(ValueClass):
+    """
+    Description as text for a node that needs further description.
+    """
+
+
+@cii_node("udt")
+class DuePayableAmount(ValueClass):
+    """Amount due for payment."""
+
+
+@cii_node("ram")
+class FaxUniversalCommunication(UniversalCommunication):
+    """Details about the contact fax number."""
+
+
+@cii_node("udt")
+class GlobalID(SchemeClass):
+    """
+    For GlobalIDs with a schemeID
+    (by implementation the schemeID is optional, but by facturx definition
+    a GlobalID must have a schemeID)
+    """
 
 
 @cii_node("udt")
@@ -220,13 +276,8 @@ class GrandTotalAmount(BaseTotalAmount):
 
 
 @cii_node("udt")
-class ID:
-    """Represents an udt:IDType"""
-
-    def __init__(self, value, scheme_id=None):
-        self._value = value
-        if scheme_id is not None:
-            self._node_attributes = {"schemeID": scheme_id}
+class ID(SchemeClass):
+    """For IDs with an optional schemeID"""
 
 
 @cii_node("udt")
@@ -268,6 +319,11 @@ class OccurenceDateTime:
 
 
 @cii_node("udt")
+class PersonName(ValueClass):
+    """Contact Name."""
+
+
+@cii_node("udt")
 class PostcodeCode(ValueClass):
     """The postcode (zip) of an address."""
 
@@ -275,6 +331,7 @@ class PostcodeCode(ValueClass):
 @cii_node("udt")
 class RateApplicablePercent(ValueClass):
     """Percent Value like 19.00 for 19%"""
+
 
 @cii_node("udt")
 class RoundingAmount(ValueClass):
@@ -321,6 +378,11 @@ class TaxTotalAmount(BaseTotalAmount):
     """
 
 
+@cii_node("ram")
+class TelephoneUniversalCommunication(UniversalCommunication):
+    """Details about the contact phone number."""
+
+
 @cii_node("udt")
 class TestIndicator(BaseIndicator):
     """Represents an Indicator."""
@@ -335,13 +397,59 @@ class TotalPrepaidAmount(ValueClass):
     """Paid amount."""
 
 
+@cii_node("udt")
+class TradingBusinessName(ValueClass):
+    """Trading Business Name."""
+
+
 @cii_node("qdt")
 class TypeCode(ValueClass):
     """Represents a CodeType."""
 
 
+@cii_node("udt")
+class URIID(ValueClass):
+    """Node for a URI-ID."""
+
+
 # ========================================================
 # definition of classes with dependencies from other nodes
+
+
+@cii_node("ram")
+class EmailURIUniversalCommunication:
+    """
+    Wrapper for the URIID node holding the email-address.
+    """
+
+    def __init__(self, email_address):
+        self._do_render = bool(email_address)
+        self._sub_element = URIID(email_address)
+
+
+@dataclass
+@cii_node("ram")
+class DefinedTradeContact:
+    """
+    Contact Address for Trade Partys. A Trade Party can have multiple
+    contact addresses. So instances of this class are stored inside a
+    sequence.
+
+    `person_name`: contact name
+    `department_name`: department name
+    `type_code`: The code specifying the type of trade contact.
+            To be chosen from the entries in UNTDID 3139.
+    `telephone_universal_communication`: Details about the contact phone number.
+    `fax_universal_communication`: believe it or not ;)
+    `email_uri_universal_communication`: email-address of the contact person
+    """
+
+    person_name: Optional[PersonName] = None
+    department_name: Optional[DepartmentName] = None
+    type_code: Optional[TypeCode] = None
+    telephone_universal_communication: Optional[TelephoneUniversalCommunication] = None
+    fax_universal_communication: Optional[FaxUniversalCommunication] = None
+    email_uri_universal_communication: Optional[EmailURIUniversalCommunication] = None
 
 
 @dataclass
@@ -409,13 +517,44 @@ class PostalTradeAddress:
 
 
 @dataclass
+@cii_node("ram")
+class SpecifiedLegalOrganization:
+    """
+    Details about the organization.
+    Used as optional subnode from `BaseTradeParty`.
+    All arguments of this node are also optional:
+
+    `id`: Registration Number with a schemeID identifier (like SWIFT, EAN)
+
+    """
+
+    id: Optional[ID] = None
+    trading_business_name: Optional[TradingBusinessName] = None
+
+
+@dataclass
 class BaseTradeParty:
     """
     Base implementation for all TradePartys
     Subclasses must apply the @cii_node decorator to make the
-    `render`-method of this super-class work.
+    `render`-method work.
+
+    required:
+    `name`: trade party name
+    `postal_address`: instance of `PostalTradeAddress`.
+
+    optional:
+    `id`: deviating id
+    `global_id`: deviating global id
+    `description`: text node if further description is needed.
+    `specified_tax_registration`
     """
 
     name: Name
     postal_address: PostalTradeAddress
+    id: Optional[ID] = None
+    global_id: Optional[GlobalID] = None
+    description: Optional[Description] = None
+    specified_legal_organization: Optional[SpecifiedLegalOrganization] = None
+    defined_trade_contact: Optional[Sequence[DefinedTradeContact]] = field(default_factory=list)
     specified_tax_registration: Optional[SpecifiedTaxRegistration] = None
