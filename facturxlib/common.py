@@ -151,12 +151,33 @@ class ActualDeliverySupplyChainEvent:
     """
 
     def __init__(self, occurence_date):
-        self._sub_element = OccurenceDateTime(occurence_date)
+        self._sub_element = OccurrenceDateTime(occurence_date)
 
 
 @cii_node("udt")
 class AllowanceTotalAmount(ValueClass):
     """Total amount of discounts."""
+
+
+@cii_node("udt")
+class AttachmentBinaryObject:
+    """
+    Attached document.
+
+    `mime_code`: mime-code of the attached file. Permissible MIME-codes are:
+        - application/pdf;
+        - image/png;
+        - image/jpeg;
+        - text/csv;
+        - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;
+        - application/vnd.oasis.opendocument.spreadsheet;
+
+    `filename`: name of the attached document.
+        Often referred as 'embedded' document.
+    """
+
+    def __init__(self, mime_code, filename):
+        self._node_attributes = {"mimeCode": mime_code, "filename": filename}
 
 
 @cii_node("udt")
@@ -257,6 +278,14 @@ class FaxUniversalCommunication(UniversalCommunication):
     """Details about the contact fax number."""
 
 
+@cii_node("qdt")
+class FormattedIssueDateTime:
+    """Order confirmation date"""
+
+    def __init__(self, value):
+        self._sub_element = DateTimeString(value)
+
+
 @cii_node("udt")
 class GlobalID(SchemeClass):
     """
@@ -278,6 +307,11 @@ class GrandTotalAmount(BaseTotalAmount):
 @cii_node("udt")
 class ID(SchemeClass):
     """For IDs with an optional schemeID"""
+
+
+@cii_node("udt")
+class IssuerAssignedID(SchemeClass):
+    """Context dependent identifier."""
 
 
 @cii_node("udt")
@@ -311,7 +345,7 @@ class Name(ValueClass):
 
 
 @cii_node("udt")
-class OccurenceDateTime:
+class OccurrenceDateTime:
     """Contractual due date of the invoice"""
 
     def __init__(self, value):
@@ -331,6 +365,11 @@ class PostcodeCode(ValueClass):
 @cii_node("udt")
 class RateApplicablePercent(ValueClass):
     """Percent Value like 19.00 for 19%"""
+
+
+@cii_node("qdt")
+class ReferenceTypeCode(ValueClass):
+    """Reference codes or schemes depending on the context."""
 
 
 @cii_node("udt")
