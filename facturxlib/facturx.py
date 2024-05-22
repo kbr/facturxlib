@@ -13,7 +13,7 @@ from .exchange import (
     ExchangedDocument,
     ExchangedDocumentContext,
 )
-from .transaction.supplychain import TransAction
+from .transaction.supplychain import SupplyChainTradeTransAction
 
 
 DEFAULT_XML_HEADER = "<?xml version='1.0' encoding='UTF-8' ?>"
@@ -25,7 +25,7 @@ class CrossIndustryInvoiceData:
     Data container for the CII representation of an invoice.
     """
 
-    transaction: TransAction
+    supply_chain_trade_transaction: SupplyChainTradeTransAction
     exchanged_document: ExchangedDocument
     exchanged_document_context: ExchangedDocumentContext = field(default_factory=ExchangedDocumentContext)
 
@@ -54,7 +54,7 @@ class CrossIndustryInvoice:
         """
         invoice_data.exchanged_document_context.render(self.node)
         invoice_data.exchanged_document.render(self.node)
-        invoice_data.transaction.render(self.node)  # type: ignore[attr-defined]
+        invoice_data.supply_chain_trade_transaction.render(self.node)  # type: ignore[attr-defined]
         ET.indent(self.node)
         content = ET.tostring(self.node, encoding="unicode")
         if self.xml_header:

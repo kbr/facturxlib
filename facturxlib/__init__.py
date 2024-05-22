@@ -34,6 +34,9 @@ from .facturx import (
 
 from .transaction.supplychain import (
     SupplyChainTradeTransAction,
+)
+
+from .transaction.basic import (
     PurePostalAdress,
     PureBasicTransAction,
     PureLineItem,
