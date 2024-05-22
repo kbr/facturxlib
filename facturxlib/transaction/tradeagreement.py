@@ -4,7 +4,7 @@ ApplicableHeaderTradeAgreement related nodes.
 
 from dataclasses import dataclass
 
-from ..common import (
+from ..nodes.common import (
     cii_node,
     BaseTradeParty,
 )

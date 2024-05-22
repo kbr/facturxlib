@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 
-from ..common import cii_node
+from ..nodes.common import cii_node
 from .tradeagreement import ApplicableHeaderTradeAgreement
 from .tradedelivery import ApplicableHeaderTradeDelivery
 from .tradeline import IncludedSupplyChainTradeLineItem

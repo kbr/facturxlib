@@ -6,7 +6,7 @@ from dataclasses import dataclass
 # from typing import Optional, Sequence
 
 
-from ..common import (
+from ..nodes.common import (
     cii_node,
     ActualDeliverySupplyChainEvent,
 )

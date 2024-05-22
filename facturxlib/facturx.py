@@ -9,7 +9,7 @@ from dataclasses import (
     field,
 )
 
-from .exchange import (
+from .nodes.exchange import (
     ExchangedDocument,
     ExchangedDocumentContext,
 )

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 
-from ..common import (
+from ..nodes.common import (
     BasisAmount,
     CalculatedAmount,
     CategoryCode,
@@ -123,7 +123,7 @@ class PureBasicTradeTax:
 
     tax_basis_total_amount: str
     tax_total_amount: str
-    percent_rate: str = "19.00"
+    percent_rate: str
     category_code: str = "S"
     type_code: str = "VAT"
 
@@ -131,10 +131,10 @@ class PureBasicTradeTax:
 @dataclass
 class PureBasicTransAction:
     """
-    Builds the SupplyChainTradeTransAction instance. Required arguments
-    are for the nodes of the BASIC profile with a cardinality of at
-    least 1. With the additional `lines` argument basic invoices can get
-    created.
+    Builds the complex SupplyChainTradeTransAction instance. Required
+    arguments are for the nodes of the BASIC profile with a cardinality
+    of at least 1. With the optional `lines` argument basic invoices
+    can get created.
 
     required:
     `line_total_amount`: Total amount of all invoice lines (format: "#.00")
@@ -148,6 +148,9 @@ class PureBasicTransAction:
     `buyer`: a `PurePostalAdress` instance about the buyer
 
     optional:
+    `rate_applicabel_percent`: the tax rate to apply.
+            This is optional but either this or the argument `trade_taxes`
+            should be given to avoid missing data for an invoice with taxes.
     `invoice_currency`: defaults to "EUR"
     `total_prepaid_amount`: Sum of amount paid in advance (defaults to "0.00")
     `charge_total_amount`: total on surcharges on document level (defaults to "")
@@ -161,16 +164,16 @@ class PureBasicTransAction:
             rules of the particular country have to be respected since
             those rules are not consistent in Europe.
     `occurence_date`: if given a datetime string of format CCYYMMDD.
-                      Can be specified here on document level.
+            Can be specified here on document level if not given by the
+            line items. (The occurence date is mandatory in Germany.)
     `lines`: a squence of `PureLineItem` instances. Optional by the specification.
     `trade_taxes`: a sequence of `PureBasicTradeTax` instances.
             If no instance is given, the `net_total` and `tax_total` values
             are used according with the `PureBasicTradeTax` default settings.
-            If the default settings do not apply at least one entry of
+            If the default settings do not apply, at least one entry of
             `PureBasicTradeTax` is required. Multiple entries are required if
             for i.e. more than a single percent_rate is used for the
             invoice-items (and therefor transaction).
-
     """
 
     line_total_amount: str
@@ -186,6 +189,7 @@ class PureBasicTransAction:
     allowance_total_amount: str = ""  # suppressed in output if not set
     rounding_amount: str = ""  # suppressed in output if not set
     occurence_date: Optional[str] = None  # optional but mandatory in germany
+    rate_applicabel_percent: Optional[str] = None
     lines: Optional[Sequence[PureLineItem]] = field(default_factory=list)
     trade_taxes: Optional[Sequence[PureBasicTradeTax]] = field(default_factory=list)
 
@@ -229,7 +233,9 @@ class PureBasicTransAction:
         if not self.trade_taxes:
             self.trade_taxes.append(
                 PureBasicTradeTax(
-                    tax_basis_total_amount=self.tax_basis_total_amount, tax_total_amount=self.tax_total_amount
+                    tax_basis_total_amount=self.tax_basis_total_amount,
+                    tax_total_amount=self.tax_total_amount,
+                    percent_rate=self.rate_applicabel_percent,
                 )
             )
         trade_taxes = []

@@ -31,22 +31,33 @@ def cii_node(namespace=None):
 
     def render(self, parent):
         # if the instance has the flag _do_render and this flag is False,
-        # then skip this node.
+        # then skip this node:
         if not getattr(self, "_do_render", True):
             return
+
+        # optionaly prevent a ValueClass getting rendered if there
+        # is no Value. Do this with `getattr` because the attributes
+        # may not exist.
+        if getattr(self, "_do_not_render_on_empty_value", False):
+            if not getattr(self, "_value", False):
+                return
+
+        # create the node, optional node-attributes and the content:
         node = self.get_node(parent)
         if hasattr(self, "_node_attributes"):
             for key, value in self._node_attributes.items():
                 node.set(key, value)
         if hasattr(self, "_value"):
             node.text = self._value
-        # for all attributes: try to render them
+
+        # for all further instance attributes: try to render them
         for tag in self.__dict__.values():
             try:
                 tag.render(node)
             except AttributeError:
                 # nothing to render, just skip
                 pass
+
         # chance to do some additonal stuff
         self._render(node)
 
@@ -366,6 +377,8 @@ class PostcodeCode(ValueClass):
 @cii_node("udt")
 class RateApplicablePercent(ValueClass):
     """Percent Value like 19.00 for 19%"""
+
+    _do_not_render_on_empty_value = True
 
 
 @cii_node("qdt")

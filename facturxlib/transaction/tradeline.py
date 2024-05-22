@@ -5,7 +5,7 @@ Implementation for the IncludedSupplyChainTradeLineItem node
 from dataclasses import dataclass
 from typing import Optional
 
-from ..common import (
+from ..nodes.common import (
     cii_node,
     BasisQuantity,
     BilledQuantity,
