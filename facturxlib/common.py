@@ -67,17 +67,6 @@ def cii_node(namespace=None):
     return wrapper
 
 
-class BaseIndicator:
-    """Represents an Indicator tag (xs:boolean)."""
-
-    def __init__(self, value: str):  # value = "true" | "false"
-        self.value = value
-
-    def render(self, parent):
-        node = ET.SubElement(parent, "Indicator")
-        node.text = self.value
-
-
 class ValueClass:
     """
     Base class for a class with a single self._value-attribute.
@@ -231,12 +220,11 @@ class ContentCode(ValueClass):
 
 
 @cii_node("udt")
-class CopyIndicator(BaseIndicator):
-    """Represents an Indicator."""
+class CopyIndicator:
+    """Represents a boolean Indicator."""
 
-    def render(self, parent):
-        node = self.get_node(parent)
-        super().render(node)
+    def __init__(self, value):
+        self._sub_element = Indicator(value)
 
 
 @cii_node("qdt")
@@ -309,9 +297,22 @@ class ID(SchemeClass):
     """For IDs with an optional schemeID"""
 
 
+@cii_node()
+class Indicator(ValueClass):
+    """
+    Represents an Indicator tag (xs:boolean).
+    value should be "true" | "false".
+    """
+
+
 @cii_node("udt")
 class IssuerAssignedID(SchemeClass):
     """Context dependent identifier."""
+
+
+@cii_node("udt")
+class LanguageID(ValueClass):
+    """Language identifier"""
 
 
 @cii_node("udt")
@@ -423,12 +424,11 @@ class TelephoneUniversalCommunication(UniversalCommunication):
 
 
 @cii_node("udt")
-class TestIndicator(BaseIndicator):
-    """Represents an Indicator."""
+class TestIndicator:
+    """Represents a boolean Indicator."""
 
-    def render(self, parent):
-        node = self.get_node(parent)
-        super().render(node)
+    def __init__(self, value):
+        self._sub_element = Indicator(value)
 
 
 @cii_node("udt")
