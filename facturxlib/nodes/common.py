@@ -182,7 +182,7 @@ class AttachmentBinaryObject:
 
 @cii_node("udt")
 class BasisAmount(ValueClass):
-    """taxable amount (aka net price)."""
+    """base amount (for further calculations)."""
 
 
 @cii_node("udt")
@@ -200,6 +200,11 @@ class CalculatedAmount(ValueClass):
     """Calculated tax related amount."""
 
 
+@cii_node("udt")
+class CalculationPercent(ValueClass):
+    """Discount / Charge in percent"""
+
+
 @cii_node("qdt")
 class CategoryCode(ValueClass):
     """Coded indication of a sales tax category."""
@@ -208,6 +213,18 @@ class CategoryCode(ValueClass):
 @cii_node("udt")
 class ChargeAmount(ValueClass):
     """Item net price."""
+
+
+@cii_node("udt")
+class ChargeIndicator:
+    """
+    Represents a boolean Indicator.
+    Value should be "true" | "false"
+    """
+
+    def __init__(self, value):
+        self._sub_element = Indicator(value)
+
 
 
 @cii_node("udt")
@@ -232,7 +249,10 @@ class ContentCode(ValueClass):
 
 @cii_node("udt")
 class CopyIndicator:
-    """Represents a boolean Indicator."""
+    """
+    Represents a boolean Indicator.
+    Value should be "true" | "false"
+    """
 
     def __init__(self, value):
         self._sub_element = Indicator(value)

@@ -7,11 +7,14 @@ from typing import Optional, Sequence
 
 from ..nodes.common import (
     cii_node,
+    BasisAmount,
     BasisQuantity,
     BilledQuantity,
     CalculatedAmount,
+    CalculationPercent,
     CategoryCode,
     ChargeAmount,
+    ChargeIndicator,
     Description,
     GlobalID,
     ID,
@@ -26,6 +29,12 @@ from ..nodes.common import (
     RateApplicablePercent,
     TypeCode,
     ValueClass,
+)
+
+from ..nodes.documents import (
+    ReferencedDocumentType_1,
+    ReferencedDocumentType_5,
+    ReferencedDocumentType_8,
 )
 
 
@@ -215,7 +224,6 @@ class IncludedReferencedProduct:
     `buyer_assigned_id`: An identification of the item assigned by the buyer
     `industry_assigned_id`: An industry assigned identification number
     `description`: Item description
-
     """
 
     name: Name
@@ -276,12 +284,74 @@ class SpecifiedTradeProduct:
 #
 
 
+@cii_node("ram")
+class BuyerOrderReferencedDocument(ReferencedDocumentType_1):
+    """Details of the associated order"""
+
+
+@cii_node("ram")
+class QuotationReferencedDocument(ReferencedDocumentType_1):
+    """QuotationReferencedDocument"""
+
+
+@cii_node("ram")
+class ContractReferencedDocument(ReferencedDocumentType_5):
+    """Detailed information on the associated contract"""
+
+
+@cii_node("ram")
+class AdditionalReferencedDocument(ReferencedDocumentType_8):
+    """Details of an additional document reference"""
+
+
+
+@dataclass
+@cii_node("ram")
+class AppliedTradeAllowanceCharge:
+    """
+    Detailed information on discounts and charges.
+
+    optional:
+    `charge_indicator`: Switch for charges and discounts.
+    `basis_amount`: Discount / Charge base amount
+    """
+
+    charge_indicator: Optional[ChargeIndicator] = None
+    calculation_percent: Optional[CalculationPercent] = None
+    basis_amount: Option[BasisAmount] = None
+
+@dataclass
+@cii_node("ram")
+class GrossPriceProductTradePrice:
+    """
+    Detailed information on the gross price of the item.
+
+    required:
+    `charge_amount`: item gross price
+
+    optional:
+    `basis_quantity`: item base quantity and optional unit_code
+    """
+    charge_amount: ChargeAmount
+    basis_quantity: Optional[BasisQuantity] = None
+    applied_trade_allowance_charges: Optional[Sequence[AppliedTradeAllowanceCharge]] = field(default_factory=list)
+
+
+
+
+
 @dataclass
 @cii_node("ram")
 class NetPriceProductTradePrice:
     """
     Detailed information on the net price of the item.
     The net price includes all surchages and discounts, except for VAT.
+
+    required:
+    `charge_amount`: item net price
+
+    optional:
+    `basis_quantity`: item base quantity and optional unit_code
     """
 
     charge_amount: ChargeAmount
@@ -303,9 +373,23 @@ class SpecifiedLineTradeAgreement:
     """
     Detailed information on the price.
     Aggregation of the contract information at line level
+
+    required:
+    `net_product_trade_price`: Detailed information on the net price of the item.
+
+    optional:
+    `buyer_order_referenced_document`: Details of the associated order
+    `quotation_referenced_document`: QuotationReferencedDocument
+    `contract_referenced_document`: Detailed information on the associated contract
+    `additional_referenced_documents`: Sequence of details of an additional document reference
+
     """
 
     net_product_trade_price: NetPriceProductTradePrice
+    buyer_order_referenced_document: Option[BuyerOrderReferencedDocument] = None
+    quotation_referenced_document: Option[QuotationReferencedDocument] = None
+    contract_referenced_document: Option[ContractReferencedDocument] = None
+    additional_referenced_documents: Option[Sequence[AdditionalReferencedDocument]] = field(default_factory=list)
 
     @classmethod
     def from_basic_profile(cls, line):
