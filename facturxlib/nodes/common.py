@@ -336,6 +336,31 @@ class LineOne(ValueClass):
     """address line one."""
 
 
+@cii_node("qdt")
+class LineStatusCode(ValueClass):
+    """
+    Indicating whether an item includes the prices which must be taken
+    into account when calculating the invoice amount, or whether it only
+    contains information.
+    """
+
+
+@cii_node("udt")
+class LineStatusReasonCode(ValueClass):
+    """
+    Complements the type to clarify whether the invoice item is one of
+    the following:
+        - Detail (default positioning)
+        - Subtotal
+        - Solely information
+    When using the field LineStatusCode, the field LineStatusReasonCode
+    must apply the following codes:
+        - Detail
+        - Aggregation
+        - Information
+    """
+
+
 @cii_node("udt")
 class LineTwo(ValueClass):
     """address line two."""
@@ -362,6 +387,11 @@ class OccurrenceDateTime:
 
     def __init__(self, value):
         self._sub_element = DateTimeString(value)
+
+
+@cii_node("udt")
+class ParentLineID(ValueClass):
+    """Parent Line ID. Seems to be optional even for EXTENDED"""
 
 
 @cii_node("udt")
