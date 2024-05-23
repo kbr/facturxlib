@@ -155,6 +155,14 @@ class ActualDeliverySupplyChainEvent:
 
 
 @cii_node("udt")
+class ActualAmount(ValueClass):
+    """
+    Actual amount of calculations.
+    Node used in multiple places.
+    """
+
+
+@cii_node("udt")
 class AllowanceTotalAmount(ValueClass):
     """Total amount of discounts."""
 

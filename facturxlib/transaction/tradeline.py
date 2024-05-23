@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 
 from ..nodes.common import (
     cii_node,
+    ActualAmount,
     BasisAmount,
     BasisQuantity,
     BilledQuantity,
@@ -310,15 +311,21 @@ class AdditionalReferencedDocument(ReferencedDocumentType_8):
 class AppliedTradeAllowanceCharge:
     """
     Detailed information on discounts and charges.
-
+    required:
+    `actual_amount`: The total discount substracted from the gross price
+            which leads to the net price.
     optional:
     `charge_indicator`: Switch for charges and discounts.
     `basis_amount`: Discount / Charge base amount
     """
 
+    actual_amount: ActualAmount
     charge_indicator: Optional[ChargeIndicator] = None
     calculation_percent: Optional[CalculationPercent] = None
     basis_amount: Option[BasisAmount] = None
+
+
+
 
 @dataclass
 @cii_node("ram")
