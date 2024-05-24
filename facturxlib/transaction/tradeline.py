@@ -1,17 +1,5 @@
 """
 Implementation for the IncludedSupplyChainTradeLineItem node.
-The direct subnodes are:
-
-    - AssociatedDocumentLineDocument
-    - SpecifiedTradeProduct
-    - SpecifiedLineTradeAgreement
-    - SpecifiedLineTradeDelivery
-    - SpecifiedLineTradeSettlement
-    - SpecifiedTradeAllowanceCharge
-    - SpecifiedTradeSettlementLineMonetarySummation
-    - InvoiceReferencedDocument
-    - AdditionalReferencedDocument
-    - ReceivableSpecifiedTradeAccountingAccount
 
 """
 
