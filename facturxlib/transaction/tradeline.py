@@ -531,6 +531,44 @@ class SpecifiedLineTradeDelivery:
 #
 
 
+@cii_node("udt")
+class TotalAllowanceChargeAmount(ValueClass):
+    """
+    Total amount of allowances / charges
+    """
+
+
+@dataclass
+@cii_node("ram")
+class SpecifiedTradeSettlementLineMonetarySummation:
+    """
+    Detailed information about item totals
+
+    required:
+    `line_total_amount`: Invoice line net amount
+
+    optional:
+    `charge_total_amount`: ChargeTotalAmount
+    `allowance_total_amount`: AllowanceTotalAmount
+    `tax_total_amount`: TaxTotalAmount
+    `grand_total_amount`: GrandTotalAmount
+    `total_allowance_charge_amount`: Total amount of allowances / charges
+    """
+
+    line_total_amount: LineTotalAmount
+    charge_total_amount: Optional[ChargeTotalAmount] = None
+    allowance_total_amount: Optional[AllowanceTotalAmount] = None
+    tax_total_amount: Optional[TaxTotalAmount] = None
+    grand_total_amount: Optional[GrandTotalAmount] = None
+    total_allowance_charge_amount: Optional[TotalAllowanceChargeAmount] = None
+
+    @classmethod
+    def from_basic_profile(cls, line):
+        """line is a `supplychain.PureLineItem` instance."""
+        return cls(line_total_amount=LineTotalAmount(line.line_total_amount))
+
+
+
 @dataclass
 @cii_node("ram")
 class ApplicableTradeTax:
@@ -577,33 +615,6 @@ class BillingSpecifiedPeriod(BillingSpecifiedPeriodBase):
     """
 
 
-@dataclass
-@cii_node("ram")
-class SpecifiedLineTradeSettlement:
-    """
-    Grouping of billing information at line level
-
-    required:
-    `applicable_trade_tax`: Line VAT information
-
-    optional:
-    `billing_specified_period`: Invoice line billing period
-    """
-
-    applicable_trade_tax: ApplicableTradeTax
-    billing_specified_period: Optional[BillingSpecifiedPeriod] = None
-
-    @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
-
-        return cls(applicable_trade_tax=ApplicableTradeTax.from_basic_profile(line))
-
-
-# ==========================================================================
-# SpecifiedTradeAllowanceCharge:
-#
-
 
 @dataclass
 @cii_node("ram")
@@ -635,46 +646,36 @@ class SpecifiedTradeAllowanceCharge:
     reason: Optional[Reason] = None
 
 
-# ==========================================================================
-# SpecifiedTradeSettlementLineMonetarySummation: specific node and subnodes
-#
-
-
-@cii_node("udt")
-class TotalAllowanceChargeAmount(ValueClass):
-    """
-    Total amount of allowances / charges
-    """
-
 
 @dataclass
 @cii_node("ram")
-class SpecifiedTradeSettlementLineMonetarySummation:
+class SpecifiedLineTradeSettlement:
     """
-    Detailed information about item totals
+    Grouping of billing information at line level
 
     required:
-    `line_total_amount`: Invoice line net amount
+    `applicable_trade_tax`: Line VAT information
 
     optional:
-    `charge_total_amount`: ChargeTotalAmount
-    `allowance_total_amount`: AllowanceTotalAmount
-    `tax_total_amount`: TaxTotalAmount
-    `grand_total_amount`: GrandTotalAmount
-    ``
+    `billing_specified_period`: Invoice line billing period
     """
 
-    line_total_amount: LineTotalAmount
-    charge_total_amount: Optional[ChargeTotalAmount] = None
-    allowance_total_amount: Optional[AllowanceTotalAmount] = None
-    tax_total_amount: Optional[TaxTotalAmount] = None
-    grand_total_amount: Optional[GrandTotalAmount] = None
-    total_allowance_charge_amount: Optional[TotalAllowanceChargeAmount] = None
+    applicable_trade_tax: ApplicableTradeTax
+    specified_trade_settlement_line_monetary_summation: SpecifiedTradeSettlementLineMonetarySummation
+    billing_specified_period: Optional[BillingSpecifiedPeriod] = None
+    specified_trade_allowance_charge: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
 
     @classmethod
     def from_basic_profile(cls, line):
         """line is a `supplychain.PureLineItem` instance."""
-        return cls(line_total_amount=LineTotalAmount(line.line_total_amount))
+
+        return cls(
+            applicable_trade_tax=ApplicableTradeTax.from_basic_profile(line),
+            specified_trade_settlement_line_monetary_summation=(
+                SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(line)
+            ),
+        )
+
 
 
 # ==========================================================================
@@ -697,8 +698,8 @@ class IncludedSupplyChainTradeLineItem:
     specified_line_trade_agreement: SpecifiedLineTradeAgreement
     specified_line_trade_delivery: SpecifiedLineTradeDelivery
     specified_line_trade_settlement: SpecifiedLineTradeSettlement
-    specified_line_settlement_line_monetary_summation: SpecifiedTradeSettlementLineMonetarySummation
-    specified_line_trade_allowance_charge: Optional[SpecifiedTradeAllowanceCharge] = None
+#     specified_line_settlement_line_monetary_summation: SpecifiedTradeSettlementLineMonetarySummation
+#     specified_line_trade_allowance_charge: Optional[SpecifiedTradeAllowanceCharge] = None
 
     @classmethod
     def from_basic_profile(cls, line):
@@ -711,7 +712,7 @@ class IncludedSupplyChainTradeLineItem:
                 billed_quantity=BilledQuantity(line.billed_quantity, line.unit_code)
             ),
             specified_line_trade_settlement=SpecifiedLineTradeSettlement.from_basic_profile(line),
-            specified_line_settlement_line_monetary_summation=(
-                SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(line)
-            ),
+#             specified_line_settlement_line_monetary_summation=(
+#                 SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(line)
+#             ),
         )
