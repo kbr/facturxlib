@@ -282,8 +282,6 @@ class DateTimeString(ValueClass):
     _node_attributes = {"format": "102"}  # fixed code for CCYYMMDD
 
 
-
-
 @cii_node("udt")
 class DepartmentName(ValueClass):
     """Department Name (of contact person)."""
@@ -299,6 +297,7 @@ class Description(ValueClass):
 @cii_node("udt")
 class DuePayableAmount(ValueClass):
     """Amount due for payment."""
+
 
 @cii_node("udt")
 class EndDateTime:
@@ -497,12 +496,14 @@ class SpecifiedTaxRegistration:
         self._do_render = bool(value)
         self._sub_element = ID(value, scheme_id)
 
+
 @cii_node("udt")
 class StartDateTime:
     """Start time of a period formatted as 'CCYYMMDD'."""
 
     def __init__(self, value):
         self._sub_element = DateTimeString(value)
+
 
 @cii_node("udt")
 class SubjectCode(ValueClass):
@@ -562,6 +563,7 @@ class URIID(ValueClass):
 
 # ========================================================
 # definition of classes with dependencies from other nodes
+
 
 @dataclass
 class BillingSpecifiedPeriodBase:

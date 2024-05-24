@@ -132,6 +132,7 @@ class ChargeFreeQuantity(QuantityClass):
     measurement unit as "unitCode" attribute.
     """
 
+
 @cii_node("udt")
 class PackageQuantity(QuantityClass):
     """
@@ -468,6 +469,7 @@ class UltimateShipToTradeParty(BaseTradeParty):
     Detailed information on the deviating final recipient
     """
 
+
 @cii_node("ram")
 class DespatchAdviceReferencedDocument(ReferencedDocumentType_5):
     """
@@ -480,6 +482,7 @@ class ReceivingAdviceReferencedDocument(ReferencedDocumentType_5):
     """
     Detailed information on the corresponding goods receipt
     """
+
 
 @cii_node("ram")
 class DeliveryNoteReferencedDocument(ReferencedDocumentType_5):
@@ -563,7 +566,6 @@ class ApplicableTradeTax:
         )
 
 
-
 @cii_node("ram")
 class BillingSpecifiedPeriod(BillingSpecifiedPeriodBase):
     """
@@ -595,6 +597,41 @@ class SpecifiedLineTradeSettlement:
 
 
 # ==========================================================================
+# SpecifiedTradeAllowanceCharge:
+#
+
+
+@dataclass
+@cii_node("ram")
+class SpecifiedTradeAllowanceCharge:
+    """
+    Details on allowances and charges on line level. A group of business
+    terms providing information about the applicable discounts on the
+    invoice line item. Details on surcharges and discounts.
+
+    required:
+    `actual_amount`: The amount of the discount / surcharge or discount without VAT
+
+    optional:
+    `charge_indicator`: Charges and Allowances line Indicator (boolean)
+            In case of a discount (BG-27) the value of the
+            ChargeIndicators has to be "false". In case of a surcharge
+            (BG-28) the value of the ChargeIndicators has to be "true".
+    `calculation_percent`: Discount / surcharge in percentage
+    `basis_amount`: Base amount for the discount / surcharge
+    `reason_code`: The invoice line discount / surcharge reason code
+    `reason`: Discount or surcharge reason (free text)
+    """
+
+    actual_amount: ActualAmount
+    charge_indicator: Optional[ChargeIndicator] = None
+    calculation_percent: Optional[CalculationPercent] = None
+    basis_amount: Optional[BasisAmount] = None
+    reason_code: Optional[ReasonCode] = None
+    reason: Optional[Reason] = None
+
+
+# ==========================================================================
 # SpecifiedTradeSettlementLineMonetarySummation: specific node and subnodes
 #
 
@@ -613,10 +650,12 @@ class SpecifiedTradeSettlementLineMonetarySummation:
         """line is a `supplychain.PureLineItem` instance."""
         return cls(line_total_amount=LineTotalAmount(line.line_total_amount))
 
+
 # ==========================================================================
 # IncludedSupplyChainTradeLineItem:
 # the parent node for all trade line subnodes
 #
+
 
 @dataclass
 @cii_node("ram")
@@ -633,6 +672,7 @@ class IncludedSupplyChainTradeLineItem:
     specified_line_trade_delivery: SpecifiedLineTradeDelivery
     specified_line_trade_settlement: SpecifiedLineTradeSettlement
     specified_line_settlement_line_monetary_summation: SpecifiedTradeSettlementLineMonetarySummation
+    specified_line_trade_allowance_charge: Optional[SpecifiedTradeAllowanceCharge] = None
 
     @classmethod
     def from_basic_profile(cls, line):
