@@ -725,6 +725,17 @@ class SpecifiedLegalOrganization:
     trading_business_name: Optional[TradingBusinessName] = None
 
 
+
+@dataclass
+@cii_node("ram")
+class ReceivableSpecifiedTradeAccountingAccount:
+    """
+    Detailed information on the accounting reference
+    """
+    id: ID
+    type_code: Optional[TypeCode] = None
+
+
 @dataclass
 class BaseTradeParty:
     """

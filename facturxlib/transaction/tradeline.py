@@ -52,6 +52,7 @@ from ..nodes.common import (
     Reason,
     ReasonCode,
     RateApplicablePercent,
+    ReceivableSpecifiedTradeAccountingAccount,
     TaxTotalAmount,
     TypeCode,
     ValueClass,
@@ -59,6 +60,8 @@ from ..nodes.common import (
 
 from ..nodes.documents import (
     ReferencedDocumentType_1,
+    ReferencedDocumentType_3,
+    ReferencedDocumentType_4,
     ReferencedDocumentType_5,
     ReferencedDocumentType_8,
 )
@@ -647,6 +650,24 @@ class SpecifiedTradeAllowanceCharge:
 
 
 
+@cii_node("ram")
+class InvoiceReferencedDocument(ReferencedDocumentType_4):
+    """
+    No further description.
+    """
+
+@cii_node("ram")
+class AdditionalReferencedDocumentTyp3(ReferencedDocumentType_3):
+    """
+    Object identifier at the invoice item level.
+    Renamed as AdditionalReferencedDocumentTyp3 to avoid nameclashing
+    """
+
+    _tag_name = "AdditionalReferencedDocument"  # TODO: refactor module in subpackage
+
+
+
+
 @dataclass
 @cii_node("ram")
 class SpecifiedLineTradeSettlement:
@@ -655,17 +676,27 @@ class SpecifiedLineTradeSettlement:
 
     required:
     `applicable_trade_tax`: Line VAT information
-    `specified_trade_settlement_line_monetary_summation`: Detailed information about item totals
+    `specified_trade_settlement_line_monetary_summation`:
+            Detailed information about item totals
 
     optional:
     `billing_specified_period`: Invoice line billing period
-    `specified_trade_allowance_charge`: Details on allowances and charges on line level
+    `specified_trade_allowance_charge`: Details on allowances and charges
+            on line level
+    `invoice_referenced_document`: InvoiceReferencedDocument
+    `additional_referenced_documents`: Sequence of Object identifier at
+            the invoice item level
+    `receivable_specific_trade_accounting_accounts`: Sequence of Detailed
+            information on the accounting reference
     """
 
     applicable_trade_tax: ApplicableTradeTax
     specified_trade_settlement_line_monetary_summation: SpecifiedTradeSettlementLineMonetarySummation
     billing_specified_period: Optional[BillingSpecifiedPeriod] = None
     specified_trade_allowance_charge: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
+    invoice_referenced_document: Optional[InvoiceReferencedDocument] = None
+    additional_referenced_documents: Optional[Sequence[AdditionalReferencedDocumentTyp3]] = field(default_factory=list)
+    receivable_specific_trade_accounting_accounts: Optional[Sequence[ReceivableSpecifiedTradeAccountingAccount]] = field(default_factory=list)
 
     @classmethod
     def from_basic_profile(cls, line):
