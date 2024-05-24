@@ -234,7 +234,6 @@ class ChargeIndicator:
         self._sub_element = Indicator(value)
 
 
-
 @cii_node("udt")
 class ChargeTotalAmount(ValueClass):
     """Sum of all surcharges on document level in the invoice."""
@@ -298,6 +297,16 @@ class Description(ValueClass):
 @cii_node("udt")
 class DuePayableAmount(ValueClass):
     """Amount due for payment."""
+
+
+@cii_node("udt")
+class ExemptionReason(ValueClass):
+    """VAT exemption reason (free text)."""
+
+
+@cii_node("udt")
+class ExemptionReasonCode(ValueClass):
+    """Reason for the exemption of VAT provided in code."""
 
 
 @cii_node("ram")
@@ -439,6 +448,20 @@ class RateApplicablePercent(ValueClass):
     _do_not_render_on_empty_value = True
 
 
+@cii_node("udt")
+class Reason(ValueClass):
+    """Reason for the charge/discount (free text)"""
+
+
+@cii_node("qdt")
+class ReasonCode(ValueClass):
+    """
+    Reason for allowance or charge (Code).
+    (like "95" for Discount).
+    If a Reason is given, text must be used as well.
+    """
+
+
 @cii_node("qdt")
 class ReferenceTypeCode(ValueClass):
     """Reference codes or schemes depending on the context."""
@@ -560,6 +583,34 @@ class DefinedTradeContact:
     telephone_universal_communication: Optional[TelephoneUniversalCommunication] = None
     fax_universal_communication: Optional[FaxUniversalCommunication] = None
     email_uri_universal_communication: Optional[EmailURIUniversalCommunication] = None
+
+
+@dataclass
+@cii_node("ram")
+class IncludedTradeTax:
+    """
+    Included tax for B2C and Tax information on advanced payments
+    (same structure).
+
+    required:
+    `calculated_amount`: the tax amount
+    `type_code`: should be fixed as "VAT"
+    `category_code`: choose from UNTID 5305 Entire code list
+
+    optional:
+    `rate_applicable_percent`: the tax rate.
+            required if used in subnode of NetPriceProductTradePrice.
+            optional if used in subnode of SpecifiedAdvancePayment
+    `exemption_reason`: VAT exemption reason (free text)
+    `exemption_reason_code`: Reason for the exemption of VAT provided in code
+    """
+
+    calculated_amount: CalculatedAmount
+    type_code: TypeCode
+    category_code: CategoryCode
+    exemption_reason: Optional[ExemptionReason] = None
+    exemption_reason_code: Optional[ExemptionReasonCode] = None
+    rate_applicable_percent: Optional[RateApplicablePercent] = None
 
 
 @dataclass

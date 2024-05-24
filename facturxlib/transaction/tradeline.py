@@ -1,5 +1,18 @@
 """
-Implementation for the IncludedSupplyChainTradeLineItem node
+Implementation for the IncludedSupplyChainTradeLineItem node.
+The direct subnodes are:
+
+    - AssociatedDocumentLineDocument
+    - SpecifiedTradeProduct
+    - SpecifiedLineTradeAgreement
+    - SpecifiedLineTradeDelivery
+    - SpecifiedLineTradeSettlement
+    - SpecifiedTradeAllowanceCharge
+    - SpecifiedTradeSettlementLineMonetarySummation
+    - InvoiceReferencedDocument
+    - AdditionalReferencedDocument
+    - ReceivableSpecifiedTradeAccountingAccount
+
 """
 
 from dataclasses import dataclass, field
@@ -20,6 +33,7 @@ from ..nodes.common import (
     GlobalID,
     ID,
     IncludedNote,
+    IncludedTradeTax,
     LineID,
     LineStatusCode,
     LineStatusReasonCode,
@@ -27,6 +41,8 @@ from ..nodes.common import (
     Name,
     ParentLineID,
     QuantityClass,
+    Reason,
+    ReasonCode,
     RateApplicablePercent,
     TypeCode,
     ValueClass,
@@ -305,6 +321,10 @@ class AdditionalReferencedDocument(ReferencedDocumentType_8):
     """Details of an additional document reference"""
 
 
+@cii_node("ram")
+class UltimateCustomerOrderReferencedDocument(ReferencedDocumentType_5):
+    """Details of an additional document reference"""
+
 
 @dataclass
 @cii_node("ram")
@@ -317,14 +337,16 @@ class AppliedTradeAllowanceCharge:
     optional:
     `charge_indicator`: Switch for charges and discounts.
     `basis_amount`: Discount / Charge base amount
+    `reason_code`: Reason for allowance or charge (Code)
+    `reason`: Reason for the charge/discount (free text)
     """
 
     actual_amount: ActualAmount
     charge_indicator: Optional[ChargeIndicator] = None
     calculation_percent: Optional[CalculationPercent] = None
-    basis_amount: Option[BasisAmount] = None
-
-
+    basis_amount: Optional[BasisAmount] = None
+    reason_code: Optional[ReasonCode] = None
+    reason: Optional[Reason] = None
 
 
 @dataclass
@@ -338,13 +360,12 @@ class GrossPriceProductTradePrice:
 
     optional:
     `basis_quantity`: item base quantity and optional unit_code
+    `applied_trade_allowance_charges`: Detailed information on discounts and charges.
     """
+
     charge_amount: ChargeAmount
     basis_quantity: Optional[BasisQuantity] = None
     applied_trade_allowance_charges: Optional[Sequence[AppliedTradeAllowanceCharge]] = field(default_factory=list)
-
-
-
 
 
 @dataclass
@@ -359,10 +380,12 @@ class NetPriceProductTradePrice:
 
     optional:
     `basis_quantity`: item base quantity and optional unit_code
+    `included_trade_tax`: Included tax for B2C
     """
 
     charge_amount: ChargeAmount
     basis_quantity: Optional[BasisQuantity] = None
+    included_trade_tax: Optional[IncludedTradeTax] = None
 
     @classmethod
     def from_basic_profile(cls, line):
@@ -389,14 +412,17 @@ class SpecifiedLineTradeAgreement:
     `quotation_referenced_document`: QuotationReferencedDocument
     `contract_referenced_document`: Detailed information on the associated contract
     `additional_referenced_documents`: Sequence of details of an additional document reference
-
+    `ultimate_customer_order_referenced_document`: Sequence of UltimateCustomerOrderReferencedDocument
     """
 
     net_product_trade_price: NetPriceProductTradePrice
-    buyer_order_referenced_document: Option[BuyerOrderReferencedDocument] = None
-    quotation_referenced_document: Option[QuotationReferencedDocument] = None
-    contract_referenced_document: Option[ContractReferencedDocument] = None
-    additional_referenced_documents: Option[Sequence[AdditionalReferencedDocument]] = field(default_factory=list)
+    buyer_order_referenced_document: Optional[BuyerOrderReferencedDocument] = None
+    quotation_referenced_document: Optional[QuotationReferencedDocument] = None
+    contract_referenced_document: Optional[ContractReferencedDocument] = None
+    additional_referenced_documents: Optional[Sequence[AdditionalReferencedDocument]] = field(default_factory=list)
+    ultimate_customer_order_referenced_document: Optional[Sequence[UltimateCustomerOrderReferencedDocument]] = field(
+        default_factory=list
+    )
 
     @classmethod
     def from_basic_profile(cls, line):
@@ -513,7 +539,7 @@ class IncludedSupplyChainTradeLineItem:
                 billed_quantity=BilledQuantity(line.billed_quantity, line.unit_code)
             ),
             specified_line_trade_settlement=SpecifiedLineTradeSettlement.from_basic_profile(line),
-            specified_line_settlement_line_monetary_summation=SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(
-                line
+            specified_line_settlement_line_monetary_summation=(
+                SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(line)
             ),
         )
