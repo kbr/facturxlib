@@ -655,9 +655,11 @@ class SpecifiedLineTradeSettlement:
 
     required:
     `applicable_trade_tax`: Line VAT information
+    `specified_trade_settlement_line_monetary_summation`: Detailed information about item totals
 
     optional:
     `billing_specified_period`: Invoice line billing period
+    `specified_trade_allowance_charge`: Details on allowances and charges on line level
     """
 
     applicable_trade_tax: ApplicableTradeTax
@@ -698,8 +700,6 @@ class IncludedSupplyChainTradeLineItem:
     specified_line_trade_agreement: SpecifiedLineTradeAgreement
     specified_line_trade_delivery: SpecifiedLineTradeDelivery
     specified_line_trade_settlement: SpecifiedLineTradeSettlement
-#     specified_line_settlement_line_monetary_summation: SpecifiedTradeSettlementLineMonetarySummation
-#     specified_line_trade_allowance_charge: Optional[SpecifiedTradeAllowanceCharge] = None
 
     @classmethod
     def from_basic_profile(cls, line):
@@ -712,7 +712,4 @@ class IncludedSupplyChainTradeLineItem:
                 billed_quantity=BilledQuantity(line.billed_quantity, line.unit_code)
             ),
             specified_line_trade_settlement=SpecifiedLineTradeSettlement.from_basic_profile(line),
-#             specified_line_settlement_line_monetary_summation=(
-#                 SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(line)
-#             ),
         )
