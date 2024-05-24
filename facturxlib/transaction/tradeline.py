@@ -22,6 +22,7 @@ from ..nodes.common import (
     cii_node,
     ActualDeliverySupplyChainEvent,
     ActualAmount,
+    AllowanceTotalAmount,
     BaseTradeParty,
     BasisAmount,
     BasisQuantity,
@@ -31,11 +32,13 @@ from ..nodes.common import (
     CalculationPercent,
     CategoryCode,
     ChargeAmount,
+    ChargeTotalAmount,
     ChargeIndicator,
     Description,
     ExemptionReason,
     ExemptionReasonCode,
     GlobalID,
+    GrandTotalAmount,
     ID,
     IncludedNote,
     IncludedTradeTax,
@@ -49,6 +52,7 @@ from ..nodes.common import (
     Reason,
     ReasonCode,
     RateApplicablePercent,
+    TaxTotalAmount,
     TypeCode,
     ValueClass,
 )
@@ -636,14 +640,36 @@ class SpecifiedTradeAllowanceCharge:
 #
 
 
+@cii_node("udt")
+class TotalAllowanceChargeAmount(ValueClass):
+    """
+    Total amount of allowances / charges
+    """
+
+
 @dataclass
 @cii_node("ram")
 class SpecifiedTradeSettlementLineMonetarySummation:
     """
     Detailed information about item totals
+
+    required:
+    `line_total_amount`: Invoice line net amount
+
+    optional:
+    `charge_total_amount`: ChargeTotalAmount
+    `allowance_total_amount`: AllowanceTotalAmount
+    `tax_total_amount`: TaxTotalAmount
+    `grand_total_amount`: GrandTotalAmount
+    ``
     """
 
     line_total_amount: LineTotalAmount
+    charge_total_amount: Optional[ChargeTotalAmount] = None
+    allowance_total_amount: Optional[AllowanceTotalAmount] = None
+    tax_total_amount: Optional[TaxTotalAmount] = None
+    grand_total_amount: Optional[GrandTotalAmount] = None
+    total_allowance_charge_amount: Optional[TotalAllowanceChargeAmount] = None
 
     @classmethod
     def from_basic_profile(cls, line):
