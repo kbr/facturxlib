@@ -26,12 +26,15 @@ from ..nodes.common import (
     BasisAmount,
     BasisQuantity,
     BilledQuantity,
+    BillingSpecifiedPeriodBase,
     CalculatedAmount,
     CalculationPercent,
     CategoryCode,
     ChargeAmount,
     ChargeIndicator,
     Description,
+    ExemptionReason,
+    ExemptionReasonCode,
     GlobalID,
     ID,
     IncludedNote,
@@ -525,25 +528,29 @@ class SpecifiedLineTradeDelivery:
 @cii_node("ram")
 class ApplicableTradeTax:
     """
-    Line VAT information.
-    This section must be used even in the BASIC profile, if the invoice
-    needs to show more than one tax type. It is used by
-    `SpecifiedLineTradeSettlement`. (This class is different from the
-    `tradesettlement.ApplicableTradeTax` by attributes and the their
-    cardinality.)
+    Line VAT information. A group of business definitions which contain
+    information about VAT and apply to the invoice line items for goods
+    and services on the invoice. This section must be used even in the
+    BASIC profile, if the invoice needs to show more than one tax type.
 
+    required:
+    `type_code`: required, but fixed to "VAT"
+
+    optional:
     `calculated_amount`: optional but required if different VATs are used
             in a single invoice.
     `category_code`: required, defaults to standard rate "S"
-    `type_code`: required, but fixed to "VAT"
     `rate_applicable_percent`: optional tax percentage, but should be used
             at least when `calculated_amount` is required.
+    `exemption_reason`: VAT exemption reason (free text)
     """
 
     calculated_amount: Optional[CalculatedAmount] = None  # Note: can be required
     category_code: CategoryCode = CategoryCode("S")  # required with default of "S"
     type_code: TypeCode = TypeCode("VAT")
     rate_applicable_percent: Optional[RateApplicablePercent] = None
+    exemption_reason: Optional[ExemptionReason] = None
+    exemption_reason_code: Optional[ExemptionReasonCode] = None
 
     @classmethod
     def from_basic_profile(cls, line):
@@ -556,18 +563,40 @@ class ApplicableTradeTax:
         )
 
 
+
+@cii_node("ram")
+class BillingSpecifiedPeriod(BillingSpecifiedPeriodBase):
+    """
+    Invoice line billing period
+    """
+
+
 @dataclass
 @cii_node("ram")
 class SpecifiedLineTradeSettlement:
-    """Grouping of billing information at line level"""
+    """
+    Grouping of billing information at line level
+
+    required:
+    `applicable_trade_tax`: Line VAT information
+
+    optional:
+    `billing_specified_period`: Invoice line billing period
+    """
 
     applicable_trade_tax: ApplicableTradeTax
+    billing_specified_period: Optional[BillingSpecifiedPeriod] = None
 
     @classmethod
     def from_basic_profile(cls, line):
         """line is a `supplychain.PureLineItem` instance."""
 
         return cls(applicable_trade_tax=ApplicableTradeTax.from_basic_profile(line))
+
+
+# ==========================================================================
+# SpecifiedTradeSettlementLineMonetarySummation: specific node and subnodes
+#
 
 
 @dataclass

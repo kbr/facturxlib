@@ -282,6 +282,8 @@ class DateTimeString(ValueClass):
     _node_attributes = {"format": "102"}  # fixed code for CCYYMMDD
 
 
+
+
 @cii_node("udt")
 class DepartmentName(ValueClass):
     """Department Name (of contact person)."""
@@ -297,6 +299,13 @@ class Description(ValueClass):
 @cii_node("udt")
 class DuePayableAmount(ValueClass):
     """Amount due for payment."""
+
+@cii_node("udt")
+class EndDateTime:
+    """End time of a period formatted as 'CCYYMMDD'."""
+
+    def __init__(self, value):
+        self._sub_element = DateTimeString(value)
 
 
 @cii_node("udt")
@@ -488,6 +497,12 @@ class SpecifiedTaxRegistration:
         self._do_render = bool(value)
         self._sub_element = ID(value, scheme_id)
 
+@cii_node("udt")
+class StartDateTime:
+    """Start time of a period formatted as 'CCYYMMDD'."""
+
+    def __init__(self, value):
+        self._sub_element = DateTimeString(value)
 
 @cii_node("udt")
 class SubjectCode(ValueClass):
@@ -547,6 +562,21 @@ class URIID(ValueClass):
 
 # ========================================================
 # definition of classes with dependencies from other nodes
+
+@dataclass
+class BillingSpecifiedPeriodBase:
+    """
+    Base class for the two BillingSpecifiedPeriod classes in
+    SpecifiedLineTradeSettlement and ApplicableHeaderTradeSettlement
+    where the latter has also Description attribute
+
+    optional arguments:
+    `start_date_time`: start of a period "CCYYMMDD"
+    `end_date_time`: end of a period "CCYYMMDD"
+    """
+
+    start_date_time: Optional[StartDateTime] = None
+    end_date_time: Optional[EndDateTime] = None
 
 
 @cii_node("ram")
