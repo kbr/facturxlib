@@ -4,13 +4,22 @@ from typing import Optional, Sequence
 
 from ..nodes.common import (
     ActualDeliverySupplyChainEvent,
+    AllowanceTotalAmount,
     BasisAmount,
     CalculatedAmount,
     CategoryCode,
+    ChargeTotalAmount,
+    DuePayableAmount,
+    GrandTotalAmount,
+    LineTotalAmount,
     Name,
     PostalTradeAddress,
     RateApplicablePercent,
+    RoundingAmount,
     SpecifiedTaxRegistration,
+    TaxBasisTotalAmount,
+    TaxTotalAmount,
+    TotalPrepaidAmount,
     TypeCode,
 )
 
@@ -33,6 +42,7 @@ from .tradeline import (
 from .tradesettlement import (
     ApplicableHeaderTradeSettlement,
     ApplicableTradeTax,
+    InvoiceCurrencyCode,
     SpecifiedTradeSettlementHeaderMonetarySummation,
 )
 
@@ -222,16 +232,20 @@ class PureBasicTransAction:
 
         # build the ApplicableHeaderTradeSettlement
         # for that the monetary summation is needed:
+
+        #         charge_total_amount = ChargeTotalAmount(self.charge_total_amount) if self.charge_total_amount else None
+        #         allowance_total_amount = AllowanceTotalAmount(self.allowance_total_amount) if self.allowance_total_amount else None
+        #         rounding_amount = RoundingAmount(self.rounding_amount) if self.rounding_amount else None
         monetary_summation = SpecifiedTradeSettlementHeaderMonetarySummation(
-            line_total_amount=self.line_total_amount,
-            charge_total_amount=self.charge_total_amount,
-            allowance_total_amount=self.allowance_total_amount,
-            tax_basis_total_amount=[(self.tax_basis_total_amount, self.invoice_currency)],
-            tax_total_amount=[(self.tax_total_amount, self.invoice_currency)],
-            grand_total_amount=[(self.grand_total_amount, self.invoice_currency)],
-            due_payable_amount=self.due_payable_amount,
-            total_prepaid_amount=self.total_prepaid_amount,
-            rounding_amount=self.rounding_amount,
+            line_total_amount=LineTotalAmount(self.line_total_amount),
+            tax_basis_total_amount=TaxBasisTotalAmount(self.tax_basis_total_amount, self.invoice_currency),
+            grand_total_amount=GrandTotalAmount(self.grand_total_amount, self.invoice_currency),
+            due_payable_amount=DuePayableAmount(self.due_payable_amount),
+            charge_total_amount=ChargeTotalAmount(self.charge_total_amount),
+            allowance_total_amount=AllowanceTotalAmount(self.allowance_total_amount),
+            tax_total_amounts=[TaxTotalAmount(self.tax_total_amount, self.invoice_currency)],
+            rounding_amount=RoundingAmount(self.rounding_amount),
+            total_prepaid_amount=TotalPrepaidAmount(self.total_prepaid_amount),
         )
         # prepare the ApplicableTradeTax instances:
         if not self.trade_taxes:
@@ -255,7 +269,7 @@ class PureBasicTransAction:
             )
 
         applicable_header_trade_settlement = ApplicableHeaderTradeSettlement(
-            invoice_currency_code=self.invoice_currency,
+            invoice_currency_code=InvoiceCurrencyCode(self.invoice_currency),
             applicable_trade_taxes=trade_taxes,
             specified_trade_settlement_header_monetary_summation=monetary_summation,
         )
