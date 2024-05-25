@@ -34,14 +34,9 @@ class SupplyChainTradeTransAction:
     applicable_header_trade_settlement: ApplicableHeaderTradeSettlement
     line_items: Optional[Sequence[IncludedSupplyChainTradeLineItem]] = field(default_factory=list)
 
-    def render(self, parent):
-        """
-        Overload the render method because in the order of nodes the
-        line-items should come first and are not renderable as a list.
-        """
-        node = self.get_node(parent)
-        for line_item in self.line_items:
-            line_item.render(node)
-        self.applicable_header_trade_agreement.render(node)
-        self.applicable_header_trade_delivery.render(node)
-        self.applicable_header_trade_settlement.render(node)
+    _render_selection = """\
+        line_items
+        applicable_header_trade_agreement
+        applicable_header_trade_delivery
+        applicable_header_trade_settlement
+    """

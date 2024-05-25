@@ -68,54 +68,22 @@ class SpecifiedTradeSettlementHeaderMonetarySummation:
     rounding_amount: Optional[RoundingAmount] = None
     total_prepaid_amount: Optional[TotalPrepaidAmount] = None
 
-    def render(self, parent):
-        """
-        Render in specific order and take care of the tax_total_amounts
-        sequence.
-        """
-        node = self.get_node(parent)
-        self.line_total_amount.render(node)
-        if self.charge_total_amount:
-            self.charge_total_amount.render(node)
-        if self.allowance_total_amount:
-            self.allowance_total_amount.render(node)
-        self.tax_basis_total_amount.render(node)
-        for tax_total_amount in self.tax_total_amounts:
-            tax_total_amount.render(node)
-        if self.rounding_amount:
-            self.rounding_amount.render(node)
-        if self.total_prepaid_amount:
-            self.total_prepaid_amount.render(node)
-
-
-#     line_total_amount: str
-#     tax_basis_total_amount: Sequence[tuple[str, str]]
-#     grand_total_amount: Sequence[tuple[str, str]]
-#     total_prepaid_amount: str
-#     due_payable_amount: str
-#     tax_total_amount: Optional[Sequence[tuple[str, str]]] = field(default_factory=list)
-#     charge_total_amount: str = ""
-#     allowance_total_amount: str = ""
-#     rounding_amount: str = ""
-#
-#     def render(self, parent):
-#         node = self.get_node(parent)
-#
-#         LineTotalAmount(self.line_total_amount).render(node)
-#         if self.charge_total_amount:
-#             ChargeTotalAmount(self.charge_total_amount).render(node)
-#         if self.allowance_total_amount:
-#             AllowanceTotalAmount(self.allowance_total_amount).render(node)
-#         for value, unit in self.tax_basis_total_amount:
-#             TaxBasisTotalAmount(value, unit).render(node)
-#         for value, unit in self.tax_total_amount:
-#             TaxTotalAmount(value, unit).render(node)
-#         if self.rounding_amount:
-#             RoundingAmount(self.rounding_amount).render(node)
-#         for value, unit in self.grand_total_amount:
-#             GrandTotalAmount(value, unit).render(node)
-#         TotalPrepaidAmount(self.total_prepaid_amount).render(node)
-#         DuePayableAmount(self.due_payable_amount).render(node)
+    _render_selection = """\
+        line_total_amount
+        charge_total_amount
+        allowance_total_amount
+        tax_basis_total_amount
+        tax_total_amounts
+        rounding_amount
+        grand_total_amount
+        total_prepaid_amount
+        due_payable_amount
+    """
+    _suppress_nodes_with_empty_values = """\
+        charge_total_amount
+        allowance_total_amount
+        rounding_amount
+    """
 
 
 @dataclass
@@ -157,24 +125,3 @@ class ApplicableHeaderTradeSettlement:
     invoice_currency_code: InvoiceCurrencyCode
     applicable_trade_taxes: Sequence[ApplicableTradeTax]
     specified_trade_settlement_header_monetary_summation: SpecifiedTradeSettlementHeaderMonetarySummation
-
-    def render(self, parent):
-        node = self.get_node(parent)
-        self.invoice_currency_code.render(node)
-        for trade_tax in self.applicable_trade_taxes:
-            trade_tax.render(node)
-        self.specified_trade_settlement_header_monetary_summation.render(node)
-
-
-#     invoice_currency_code: str
-#     applicable_trade_taxes: Sequence[ApplicableTradeTax]
-#     specified_trade_settlement_header_monetary_summation: SpecifiedTradeSettlementHeaderMonetarySummation
-#
-#     def render(self, parent):
-#         node = self.get_node(parent)
-#
-#         InvoiceCurrencyCode(self.invoice_currency_code).render(node)
-#         for trade_tax in self.applicable_trade_taxes:
-#             # breakpoint()
-#             trade_tax.render(node)
-#         self.specified_trade_settlement_header_monetary_summation.render(node)

@@ -144,3 +144,41 @@ def test_render_with_iterable(parent):
     node = IT(a=A(), li=[VC("3"), VC("42")], b=B())
     expected = "<ns:IT><ns:A /><ns:VC>3</ns:VC><ns:VC>42</ns:VC><ns:B /></ns:IT>"
     check_result(parent, node, expected)
+
+
+
+@dataclass
+@cii_node("ns")
+class Suppress:
+    a: VC
+    b: VC
+
+    _suppress_nodes_with_empty_values = "b"
+
+@pytest.mark.parametrize(
+    "x, y, expected", [
+        ("3", "4", "<ns:Suppress><ns:VC>3</ns:VC><ns:VC>4</ns:VC></ns:Suppress>"),
+        ("3", "", "<ns:Suppress><ns:VC>3</ns:VC></ns:Suppress>"),
+    ]
+)
+
+def test_render_with_suppress_setting(x, y, expected, parent):
+    node = Suppress(a=VC(x), b=VC(y))
+    check_result(parent, node, expected)
+
+
+
+@dataclass
+@cii_node("ns")
+class Suppress2:
+    a: VC
+    b: VC
+    c: VC
+
+    _render_selection = "b c"
+    _suppress_nodes_with_empty_values = "b"
+
+def test_render_with_suppress_setting(parent):
+    node = Suppress2(a=VC("3"), b=VC(""), c=VC("42"))
+    expected = "<ns:Suppress2><ns:VC>42</ns:VC></ns:Suppress2>"
+    check_result(parent, node, expected)

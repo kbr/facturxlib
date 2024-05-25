@@ -15,6 +15,9 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 
+DO_NOT_RENDER_ON_EMPTY_VALUE = "_do_not_render_on_empty_value"
+
+
 def cii_node(namespace=None):
     """
     Convenience class decorator to get the node of a class-instance
@@ -39,7 +42,7 @@ def cii_node(namespace=None):
         # optionaly prevent a ValueClass getting rendered if there
         # is no Value. Do this with `getattr` because the attributes
         # may not exist.
-        if getattr(self, "_do_not_render_on_empty_value", False):
+        if getattr(self, DO_NOT_RENDER_ON_EMPTY_VALUE, False):
             if not getattr(self, "_value", False):
                 return
 
@@ -51,6 +54,12 @@ def cii_node(namespace=None):
         if hasattr(self, "_value"):
             node.text = self._value
 
+        # check for explicit render exceptions:
+        nodes_to_ignore_if_empty = getattr(self, "_suppress_nodes_with_empty_values", None)
+        if nodes_to_ignore_if_empty:
+            for entry in nodes_to_ignore_if_empty.split():
+                item = getattr(self, entry, None)
+                setattr(item, DO_NOT_RENDER_ON_EMPTY_VALUE, True)
         # check for selected subnodes:
         selection = getattr(self, "_render_selection", None)
         if selection:
@@ -59,8 +68,8 @@ def cii_node(namespace=None):
                     _render_object(attr, node)
         else:
             # for all instance attributes: try to render them
-            for tag in self.__dict__.values():
-                _render_object(tag, node)
+            for item in self.__dict__.values():
+                _render_object(item, node)
 
         # chance to do some additonal stuff
         self._render(node)
