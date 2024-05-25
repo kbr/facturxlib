@@ -3,6 +3,7 @@ from typing import Optional, Sequence
 
 
 from ..nodes.common import (
+    ActualDeliverySupplyChainEvent,
     BasisAmount,
     CalculatedAmount,
     CategoryCode,
@@ -214,7 +215,10 @@ class PureBasicTransAction:
         )
 
         # build the ApplicableHeaderTradeDelivery
-        applicable_header_trade_delivery = ApplicableHeaderTradeDelivery(occurence_date=self.occurence_date)
+        actual_delivery_supply_chain_event = ActualDeliverySupplyChainEvent(occurence_date=self.occurence_date)
+        applicable_header_trade_delivery = ApplicableHeaderTradeDelivery(
+            actual_delivery_supply_chain_event=actual_delivery_supply_chain_event
+        )
 
         # build the ApplicableHeaderTradeSettlement
         # for that the monetary summation is needed:
