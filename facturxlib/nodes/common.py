@@ -10,6 +10,7 @@ other nodes.
 
 import xml.etree.ElementTree as ET
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
@@ -17,7 +18,7 @@ from typing import Optional, Sequence
 def cii_node(namespace=None):
     """
     Convenience class decorator to get the node of a class-instance
-    and automate some rendering.
+    and automate the rendering.
     """
 
     def get_node(self, parent):
@@ -50,16 +51,32 @@ def cii_node(namespace=None):
         if hasattr(self, "_value"):
             node.text = self._value
 
-        # for all further instance attributes: try to render them
-        for tag in self.__dict__.values():
-            try:
-                tag.render(node)
-            except AttributeError:
-                # nothing to render, just skip
-                pass
+        # check for selected subnodes:
+        selection = getattr(self, "_render_selection", None)
+        if selection:
+            for attribute_name in selection.split():
+                if attr := getattr(self, attribute_name, None):
+                    _render_object(attr, node)
+        else:
+            # for all instance attributes: try to render them
+            for tag in self.__dict__.values():
+                _render_object(tag, node)
 
         # chance to do some additonal stuff
         self._render(node)
+
+    def _render_object(obj, node):
+        try:
+            obj.render(node)
+        except AttributeError:
+            # check for iterable and try to delegate:
+            if isinstance(obj, Iterable):
+                for item in obj:
+                    try:
+                        item.render(node)
+                    except AttributeError:
+                        # nothing to render, just skip
+                        pass
 
     def _render(self, node):
         """

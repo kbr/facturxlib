@@ -1,0 +1,4 @@
+nox
+ruff
+mypy
+pytest
