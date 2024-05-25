@@ -14,8 +14,7 @@ DO_NOT_RENDER_ON_EMPTY_VALUE = "_do_not_render_on_empty_value"
 
 def cii_node(namespace=None):
     """
-    Convenience class decorator to get the node of a class-instance
-    and automate the rendering.
+    Class decorator to automate the rendering.
     """
 
     def get_node(self, parent):
