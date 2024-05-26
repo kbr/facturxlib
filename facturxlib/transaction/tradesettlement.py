@@ -9,9 +9,11 @@ from ..nodes.cii import cii_node
 from ..nodes.common import (
     AllowanceTotalAmount,
     BasisAmount,
+    BillingSpecifiedPeriodBase,
     CalculatedAmount,
     CategoryCode,
     ChargeTotalAmount,
+    Description,
     DateTimeString,
     DuePayableAmount,
     ExemptionReason,
@@ -380,6 +382,25 @@ class ApplicableTradeTax:
     rate_applicable_percent: Optional[RateApplicablePercent] = None
 
 
+
+@cii_node("ram")
+class BillingSpecifiedPeriod(BillingSpecifiedPeriodBase):
+    """
+    Detailed information about the invoicing period
+
+    optional arguments:
+    `description`: Invoicing period description (free text)
+    `start_date_time`: start of a period "CCYYMMDD"
+    `end_date_time`: end of a period "CCYYMMDD"
+
+    """
+
+    description: Optional[Description] = None
+
+
+
+
+
 @dataclass
 @cii_node("ram")
 class ApplicableHeaderTradeSettlement:
@@ -411,6 +432,8 @@ class ApplicableHeaderTradeSettlement:
     `tax_applicable_trade_currency_exchange`: Specification of the invoice
             currency, local currency and exchange rate at a given time.
     `specified_trade_settlement_payment_means`: sequence of Payment instructions
+    `billing_specified_period`: Detailed information about the invoicing period
+
     """
 
     invoice_currency_code: InvoiceCurrencyCode
@@ -428,3 +451,4 @@ class ApplicableHeaderTradeSettlement:
     specified_trade_settlement_payment_means: Optional[Sequence[SpecifiedTradeSettlementPaymentMeans]] = field(
         default_factory=list
     )
+    billing_specified_period: Option[BillingSpecifiedPeriod] = None
