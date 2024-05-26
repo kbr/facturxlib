@@ -7,11 +7,15 @@ from typing import Optional, Sequence
 
 from ..nodes.cii import cii_node
 from ..nodes.common import (
+    ActualAmount,
     AllowanceTotalAmount,
     BasisAmount,
+    BasisQuantity,
     BillingSpecifiedPeriodBase,
     CalculatedAmount,
+    CalculationPercent,
     CategoryCode,
+    ChargeIndicator,
     ChargeTotalAmount,
     Description,
     DateTimeString,
@@ -22,6 +26,8 @@ from ..nodes.common import (
     ID,
     LineTotalAmount,
     RateApplicablePercent,
+    Reason,
+    ReasonCode,
     RoundingAmount,
     TaxBasisTotalAmount,
     TaxTotalAmount,
@@ -47,6 +53,7 @@ class AccountName(ValueClass):
 class AllowanceChargeBasisAmount(ValueClass):
     """Total amount of charges / allowances on document level"""
 
+
 @cii_node("udt")
 class BICID(ValueClass):
     """Payment service provider identifier."""
@@ -65,10 +72,10 @@ class DateTime(ValueClass):
     xs:dateTime defaults to ISO 8601 : "YYYY-MM-DDThh:mm:ss"
     """
 
+
 @cii_node()
 class DateString(DateTimeString):
     """Tax due date, Value"""
-
 
 
 @dataclass
@@ -94,6 +101,7 @@ class CardholderName(ValueClass):
 @cii_node("udt")
 class CreditorReferenceID(ValueClass):
     """Bank assigned creditor identifier."""
+
 
 @cii_node("qdt")
 class DueDateTypeCode(ValueClass):
@@ -124,6 +132,7 @@ class InvoiceCurrencyCode(ValueClass):
 class LineTotalBasisAmount(ValueClass):
     """Goods value of the tax rate."""
 
+
 @cii_node("udt")
 class PaymentReference(ValueClass):
     """Remittance information."""
@@ -132,6 +141,14 @@ class PaymentReference(ValueClass):
 @cii_node("udt")
 class ProprietaryID(ValueClass):
     """National account number (not SEPA)."""
+
+
+@cii_node("udt")
+class SequenceNumeric(ValueClass):
+    """
+    Calculation sequence. Note: Up to level COMFORT only the final
+    result of the calculation is given.
+    """
 
 
 @cii_node("qdt")
@@ -170,7 +187,6 @@ class TaxApplicableTradeCurrencyExchange:
     conversion_rate_date_time: Optional[ConversionRateDateTime] = None
 
 
-
 @dataclass
 @cii_node("udt")
 class TaxPointDate:
@@ -184,6 +200,7 @@ class TaxPointDate:
     required:
     `date_string`: Tax due date, Value ("CCYYMMDD")
     """
+
     date_string: DateString
 
 
@@ -376,11 +393,10 @@ class ApplicableTradeTax:
     exemption_reason: Optional[ExemptionReason] = None
     line_total_basis_amount: Optional[LineTotalBasisAmount] = None
     allowance_charge_basis_amount: Optional[AllowanceChargeBasisAmount] = None
-    exemption_reason_code; Optional[ExemptionReasonCode] = None
+    exemption_reason_code: Optional[ExemptionReasonCode] = None
     tax_point_date: Optional[TaxPointDate] = None
     due_date_type_code: Optional[DueDateTypeCode] = None
     rate_applicable_percent: Optional[RateApplicablePercent] = None
-
 
 
 @cii_node("ram")
@@ -398,7 +414,63 @@ class BillingSpecifiedPeriod(BillingSpecifiedPeriodBase):
     description: Optional[Description] = None
 
 
+@dataclass
+@cii_node("ram")
+class CategoryTradeTax:
+    """
+    Detailed information on tax information
 
+    required:
+    `type_code`: VAT type code for document level allowances / charges
+    `category_code`: Coded information on applying sales tax category
+            for surcharge or discount on document level.
+            (example: AE = VAT reverse charge)
+
+    optional:
+    `rate_applicable_percent`: The VAT rate, represented as percentage
+            that applies to the document level discount and surcharge
+    """
+
+    type_code: TypeCode
+    category_code: CategoryCode
+    rate_applicable_percent: Optional[RateApplicablePercent] = None
+
+
+@dataclass
+@cii_node("ram")
+class SpecifiedTradeAllowanceCharge:
+    """
+    Document level allowances /charges.
+    Discounts, like withheld taxes, can be stated in this group.
+
+    required:
+    `charge_indicator`: Allowances /charges document level Indicator,
+            Value (a boolean: "true" | "false")
+    `category_trade_tax`: Detailed information on tax information
+
+    optional:
+    `sequence_numeric`: Calculation sequence. Note: Up to level COMFORT
+            only the final result of the calculation is given.
+    `calculation_percent`: The percentage that may be used in conjunction
+            with the document level discount base amount, to calculate
+            the document level discount amount.
+    `basis_amount`: The base amount that may be used in conjunction
+            with the document level discount or surcharge percentage to
+            calculate the document level charge amount.
+    `actual_amount`: The amount of discount or surcharge without VAT
+    `reason_code`: The reason for the document level surcharge or
+            discount expressed as a code
+    """
+
+    charge_indicator: ChargeIndicator
+    category_trade_tax: CategoryTradeTax
+    sequence_numeric: Optional[SequenceNumeric] = None
+    calculation_percent: Optional[CalculationPercent] = None
+    basis_amount: Optional[BasisAmount] = None
+    basis_quantity: Optional[BasisQuantity] = None
+    actual_amount: Optional[ActualAmount] = None
+    reason_code: Optional[ReasonCode] = None
+    reason: Optional[Reason] = None
 
 
 @dataclass
@@ -451,4 +523,4 @@ class ApplicableHeaderTradeSettlement:
     specified_trade_settlement_payment_means: Optional[Sequence[SpecifiedTradeSettlementPaymentMeans]] = field(
         default_factory=list
     )
-    billing_specified_period: Option[BillingSpecifiedPeriod] = None
+    billing_specified_period: Optional[BillingSpecifiedPeriod] = None
