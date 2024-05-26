@@ -6,8 +6,8 @@ Module for the SpecifiedLineTradeAgreement node.
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
+from facturxlib.nodes.cii import cii_node
 from facturxlib.nodes.common import (
-    cii_node,
     ActualAmount,
     BasisAmount,
     BasisQuantity,

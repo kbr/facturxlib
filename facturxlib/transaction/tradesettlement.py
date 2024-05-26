@@ -5,17 +5,17 @@ ApplicableHeaderTradeSettlement related nodes.
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
-
+from ..nodes.cii import cii_node
 from ..nodes.common import (
-    cii_node,
     AllowanceTotalAmount,
-    BaseTradeParty,
     BasisAmount,
     CalculatedAmount,
     CategoryCode,
     ChargeTotalAmount,
+    DateTimeString,
     DuePayableAmount,
     GrandTotalAmount,
+    ID,
     LineTotalAmount,
     RateApplicablePercent,
     RoundingAmount,
@@ -26,10 +26,71 @@ from ..nodes.common import (
     ValueClass,
 )
 
+from ..nodes.tradeparty import (
+    InvoicerTradeParty,
+    InvoiceeTradeParty,
+    PayeeTradeParty,
+    PayerTradeParty,
+)
+
+
+@cii_node("udt")
+class AccountName(ValueClass):
+    """Payment account name."""
+
+
+@cii_node("udt")
+class BICID(ValueClass):
+    """Payment service provider identifier."""
+
+
+@cii_node("udt")
+class ConversionRate(ValueClass):
+    """Bank assigned creditor identifier."""
+
+
+@cii_node("xs")
+class DateTime(ValueClass):
+    """
+    Unocumented. Used in `ConversionRateDateTime` aside to the
+    `DateTimeString` node.
+    xs:dateTime defaults to ISO 8601 : "YYYY-MM-DDThh:mm:ss"
+    """
+
+
+@dataclass
+@cii_node("udt")
+class ConversionRateDateTime:
+    """
+    Exchange rate date.
+
+    required:
+    `date_time_string`: DateTimeString (value: "CCYYMMDD")
+    `date_time`: string as ISO 8601 : "YYYY-MM-DDThh:mm:ss" to store also the time
+    """
+
+    date_time_string: DateTimeString
+    date_time: DateTime
+
+
+@cii_node("udt")
+class CardholderName(ValueClass):
+    """The name of the payment card holder."""
+
 
 @cii_node("udt")
 class CreditorReferenceID(ValueClass):
     """Bank assigned creditor identifier."""
+
+
+@cii_node("udt")
+class IBANID(ValueClass):
+    """Direct debit: Debited account identifier"""
+
+
+@cii_node("udt")
+class Information(ValueClass):
+    """Payment means text"""
 
 
 @cii_node("udt")
@@ -42,34 +103,148 @@ class InvoiceCurrencyCode(ValueClass):
     """represents a tag specifying a currency code like "EUR"."""
 
 
-@cii_node("ram")
-class InvoicerTradeParty(BaseTradeParty):
-    """InvoicerTradeParty"""
-
-@cii_node("ram")
-class InvoiceeTradeParty(BaseTradeParty):
-    """Detailed information about the deviating invoice recipient"""
-
-@cii_node("ram")
-class PayeeTradeParty(BaseTradeParty):
-    """Detailed contact information about the Payee"""
-
-@cii_node("ram")
-class PayerTradeParty(BaseTradeParty):
-    """PayerTradeParty"""
-
-
-
-
-
 @cii_node("udt")
 class PaymentReference(ValueClass):
     """Remittance information."""
 
 
+@cii_node("udt")
+class ProprietaryID(ValueClass):
+    """National account number (not SEPA)."""
+
+
+@cii_node("qdt")
+class SourceCurrencyCode(ValueClass):
+    """Invoice currency"""
+
+
+@cii_node("qdt")
+class TargetCurrencyCode(ValueClass):
+    """Local currency"""
+
+
 @cii_node("qdt")
 class TaxCurrencyCode(ValueClass):
     """VAT accounting currency code"""
+
+
+@dataclass
+@cii_node("ram")
+class TaxApplicableTradeCurrencyExchange:
+    """
+    Specification of the invoice currency, local currency and exchange rate.
+
+    required:
+    `source_currency_code`: Invoice currency
+    `target_currency_code`: Local currency
+    `conversion_rate`: Exchange rate
+
+    optional:
+    `conversion_rate_date_time`: combination of date and date with time
+    """
+
+    source_currency_code: SourceCurrencyCode
+    target_currency_code: TargetCurrencyCode
+    conversion_rate: ConversionRate
+    conversion_rate_date_time: Optional[ConversionRateDateTime] = None
+
+
+@dataclass
+@cii_node("ram")
+class ApplicableTradeSettlementFinancialCard:
+    """
+    Payment card information.
+
+    required:
+    `id`: Payment card number
+
+    optional:
+    `card_holder_name`: The name of the payment card holder
+    """
+
+    id: ID
+    card_holder_name: Optional[CardholderName] = None
+
+
+@dataclass
+@cii_node("ram")
+class PayerPartyDebtorFinancialAccount:
+    """
+    Buyer bank information.
+
+    optional:
+    `iban_id`: The account to be debited by the direct debit
+    """
+
+    iban_id: Optional[IBANID] = None
+
+
+@dataclass
+@cii_node("ram")
+class PayeePartyCreditorFinancialAccount:
+    """
+    Credit Transfer
+
+    optional:
+    `iban_id`: A unique identifier of the financial payment account,
+            at a payment service provider, to which payment should be made.
+    `account_name`: The name of the payment account, at a payment
+            service provider, to which the payment should be made. Only
+            necessary, if it differs from seller or payment recipient.
+    `proprietary_id`: National account number (not SEPA).
+            Use IBANID for SEPA payments.
+    """
+
+    iban_id: Optional[IBANID] = None
+    account_name: Optional[AccountName] = None
+    proprietary_id: Optional[ProprietaryID] = None
+
+
+@dataclass
+@cii_node("ram")
+class PayeeSpecifiedCreditorFinancialInstitution:
+    """
+    Seller bank information.
+
+    required:
+    `bic_id`: An identifier for the payment service provider where a
+            payment account is located
+    """
+
+    bic_id: BICID
+
+
+@dataclass
+@cii_node("ram")
+class SpecifiedTradeSettlementPaymentMeans:
+    """
+    Payment instructions
+
+    required:
+    `type_code`: Payment means type code. The means expressed as code,
+            for how a payment is expected to be or has been settled. The
+            entries from the UNTDID 4461 code list shall be used.
+            Distinction should be made between SEPA- and non- SEPA
+            payments and between credit payments, direct debits, card
+            payments and other instruments, i.e.
+            - 42 : Payment to bank account,
+            - 48 : Payment by credit card
+
+    optional:
+    `information`: Payment means text, such as cash, credit transfer,
+            direct debit, credit card etc.
+    `applicable_trade_settlement_financial_card`: Payment card information.
+    `payer_party_debtor_financial_account`: Buyer bank information
+    `payee_party_creditor_financial_account`: Credit Transfer
+    `payee_specific_creditor_financial_institution`: Seller bank information
+    """
+
+    type_code: TypeCode
+    information: Information
+    applicable_trade_settlement_financial_card: Optional[ApplicableTradeSettlementFinancialCard] = None
+    payer_party_debtor_financial_account: Optional[PayerPartyDebtorFinancialAccount] = None
+    payee_party_creditor_financial_account: Optional[PayeePartyCreditorFinancialAccount] = None
+    payee_specific_creditor_financial_institution: Optional[PayeeSpecifiedCreditorFinancialInstitution] = None
 
 
 @dataclass
@@ -176,6 +351,9 @@ class ApplicableHeaderTradeSettlement:
     `invoicee_trade_party`: Detailed information about the deviating invoice recipient
     `payee_trade_party`: Detailed contact information about the Payee
     `payer_trade_party`: PayerTradeParty
+    `tax_applicable_trade_currency_exchange`: Specification of the invoice
+            currency, local currency and exchange rate at a given time.
+    `specific_trade_settlement_payment_means`: sequence of Payment instructions
     """
 
     invoice_currency_code: InvoiceCurrencyCode
@@ -189,7 +367,7 @@ class ApplicableHeaderTradeSettlement:
     invoicee_trade_party: Optional[InvoiceeTradeParty] = None
     payee_trade_party: Optional[PayeeTradeParty] = None
     payer_trade_party: Optional[PayerTradeParty] = None
-
-
-
-
+    tax_applicable_trade_currency_exchange: Optional[TaxApplicableTradeCurrencyExchange] = None
+    specific_trade_settlement_payment_means: Optional[Sequence[SpecifiedTradeSettlementPaymentMeans]] = field(
+        default_factory=list
+    )

@@ -5,9 +5,8 @@ ApplicableHeaderTradeAgreement related nodes.
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
+from ..nodes.cii import cii_node
 from ..nodes.common import (
-    cii_node,
-    BaseTradeParty,
     ID,
     Name,
     ValueClass,
@@ -18,6 +17,16 @@ from ..nodes.documents import (
     ReferencedDocumentType_2,
     ReferencedDocumentType_6,
     ReferencedDocumentType_8,
+)
+
+from ..nodes.tradeparty import (
+    BuyerAgentTradeParty,
+    BuyerTaxRepresentativeTradeParty,
+    BuyerTradeParty,
+    ProductEndUserTradeParty,
+    SalesAgentTradeParty,
+    SellerTaxRepresentativeTradeParty,
+    SellerTradeParty,
 )
 
 
@@ -53,21 +62,6 @@ class BuyerOrderReferencedDocument(ReferencedDocumentType_2):
     """
 
 
-@cii_node("ram")
-class BuyerAgentTradeParty(BaseTradeParty):
-    """BuyerAgentTradeParty"""
-
-
-@cii_node("ram")
-class BuyerTaxRepresentativeTradeParty(BaseTradeParty):
-    """Buyer tax representative party"""
-
-
-@cii_node("ram")
-class BuyerTradeParty(BaseTradeParty):
-    """Detailed information about the buyer (=recipient)."""
-
-
 @cii_node("udt")
 class BuyerReference(ValueClass):
     """
@@ -83,36 +77,14 @@ class ContractReferencedDocument(ReferencedDocumentType_6):
 
 
 @cii_node("ram")
-class ProductEndUserTradeParty(BaseTradeParty):
-    """Detailed information about the deviating end user."""
-
-
-@cii_node("ram")
 class QuotationReferencedDocument(ReferencedDocumentType_2):
     """QuotationReferencedDocument"""
-
-
-@cii_node("ram")
-class SalesAgentTradeParty(BaseTradeParty):
-    """SalesAgentTradeParty"""
 
 
 @cii_node("ram")
 class SellerOrderReferencedDocument(ReferencedDocumentType_2):
     """
     Details about the associated order confirmation
-    """
-
-
-@cii_node("ram")
-class SellerTaxRepresentativeTradeParty(BaseTradeParty):
-    """Seller tax representative party"""
-
-
-@cii_node("ram")
-class SellerTradeParty(BaseTradeParty):
-    """
-    Detailed information about the seller (=service provider)
     """
 
 

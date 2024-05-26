@@ -6,29 +6,19 @@ Module for the SpecifiedLineTradeDelivery node.
 from dataclasses import dataclass
 from typing import Optional
 
+from facturxlib.nodes.cii import cii_node
 from facturxlib.nodes.common import (
-    cii_node,
     ActualDeliverySupplyChainEvent,
-    BaseTradeParty,
     BilledQuantity,
     QuantityClass,
 )
 
 from facturxlib.nodes.documents import ReferencedDocumentType_5
 
-
-@cii_node("ram")
-class ShipToTradeParty(BaseTradeParty):
-    """
-    Detailed information on the deviating goods recipient
-    """
-
-
-@cii_node("ram")
-class UltimateShipToTradeParty(BaseTradeParty):
-    """
-    Detailed information on the deviating final recipient
-    """
+from facturxlib.nodes.tradeparty import (
+    ShipToTradeParty,
+    UltimateShipToTradeParty,
+)
 
 
 @cii_node("ram")

@@ -8,8 +8,8 @@ Nodes that are also dataclasses are last, because of dependencies from
 other nodes.
 """
 
-from dataclasses import dataclass, field
-from typing import Optional, Sequence
+from dataclasses import dataclass
+from typing import Optional
 
 from .cii import cii_node
 
@@ -670,31 +670,3 @@ class ReceivableSpecifiedTradeAccountingAccount:
 
     id: ID
     type_code: Optional[TypeCode] = None
-
-
-@dataclass
-class BaseTradeParty:
-    """
-    Base implementation for all TradePartys
-    Subclasses must apply the @cii_node decorator to make the
-    `render`-method work.
-
-    required:
-    `name`: trade party name
-    `postal_address`: instance of `PostalTradeAddress`.
-
-    optional:
-    `id`: deviating id
-    `global_id`: deviating global id
-    `description`: text node if further description is needed.
-    `specified_tax_registration`
-    """
-
-    name: Name
-    postal_address: PostalTradeAddress
-    id: Optional[ID] = None
-    global_id: Optional[GlobalID] = None
-    description: Optional[Description] = None
-    specified_legal_organization: Optional[SpecifiedLegalOrganization] = None
-    defined_trade_contact: Optional[Sequence[DefinedTradeContact]] = field(default_factory=list)
-    specified_tax_registration: Optional[SpecifiedTaxRegistration] = None

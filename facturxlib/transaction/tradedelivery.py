@@ -9,13 +9,18 @@ from typing import Optional, Sequence
 from ..nodes.common import (
     cii_node,
     ActualDeliverySupplyChainEvent,
-    BaseTradeParty,
     ValueClass,
 )
 
 from ..nodes.documents import (
     ReferencedDocumentType_1,
     ReferencedDocumentType_2,
+)
+
+from ..nodes.tradeparty import (
+    ShipFromTradeParty,
+    ShipToTradeParty,
+    UltimateShipToTradeParty,
 )
 
 
@@ -74,26 +79,28 @@ class ReceivingAdviceReferencedDocument(ReferencedDocumentType_2):
     """
 
 
-@cii_node("ram")
-class ShipFromTradeParty(BaseTradeParty):
-    """
-    Identification of the deviating sender
-    """
-
-
-@cii_node("ram")
-class ShipToTradeParty(BaseTradeParty):
-    """
-    A group of business terms providing information about where and when
-    the goods and services invoiced are delivered.
-    """
-
-
-@cii_node("ram")
-class UltimateShipToTradeParty(BaseTradeParty):
-    """
-    Detailed information about the final recipient
-    """
+#
+# @cii_node("ram")
+# class ShipFromTradeParty(BaseTradeParty):
+#     """
+#     Identification of the deviating sender
+#     """
+#
+#
+# @cii_node("ram")
+# class ShipToTradeParty(BaseTradeParty):
+#     """
+#     A group of business terms providing information about where and when
+#     the goods and services invoiced are delivered.
+#     """
+#
+#
+# @cii_node("ram")
+# class UltimateShipToTradeParty(BaseTradeParty):
+#     """
+#     Detailed information about the final recipient
+#     """
+#
 
 
 @dataclass

@@ -6,8 +6,8 @@ Module for the AssociatedDocumentLineDocument node.
 from dataclasses import dataclass
 from typing import Optional
 
+from facturxlib.nodes.cii import cii_node
 from facturxlib.nodes.common import (
-    cii_node,
     IncludedNote,
     LineID,
     LineStatusCode,
