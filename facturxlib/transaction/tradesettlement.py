@@ -14,6 +14,8 @@ from ..nodes.common import (
     ChargeTotalAmount,
     DateTimeString,
     DuePayableAmount,
+    ExemptionReason,
+    ExemptionReasonCode,
     GrandTotalAmount,
     ID,
     LineTotalAmount,
@@ -40,6 +42,10 @@ class AccountName(ValueClass):
 
 
 @cii_node("udt")
+class AllowanceChargeBasisAmount(ValueClass):
+    """Total amount of charges / allowances on document level"""
+
+@cii_node("udt")
 class BICID(ValueClass):
     """Payment service provider identifier."""
 
@@ -56,6 +62,11 @@ class DateTime(ValueClass):
     `DateTimeString` node.
     xs:dateTime defaults to ISO 8601 : "YYYY-MM-DDThh:mm:ss"
     """
+
+@cii_node()
+class DateString(DateTimeString):
+    """Tax due date, Value"""
+
 
 
 @dataclass
@@ -82,6 +93,10 @@ class CardholderName(ValueClass):
 class CreditorReferenceID(ValueClass):
     """Bank assigned creditor identifier."""
 
+@cii_node("qdt")
+class DueDateTypeCode(ValueClass):
+    """Tax due date, code."""
+
 
 @cii_node("udt")
 class IBANID(ValueClass):
@@ -102,6 +117,10 @@ class InvoiceIssuerReference(ValueClass):
 class InvoiceCurrencyCode(ValueClass):
     """represents a tag specifying a currency code like "EUR"."""
 
+
+@cii_node("udt")
+class LineTotalBasisAmount(ValueClass):
+    """Goods value of the tax rate."""
 
 @cii_node("udt")
 class PaymentReference(ValueClass):
@@ -147,6 +166,23 @@ class TaxApplicableTradeCurrencyExchange:
     target_currency_code: TargetCurrencyCode
     conversion_rate: ConversionRate
     conversion_rate_date_time: Optional[ConversionRateDateTime] = None
+
+
+
+@dataclass
+@cii_node("udt")
+class TaxPointDate:
+    """
+    The date when the VAT becomes accountable for the seller and for the
+    buyer in so far as that date can be determined and differs from the
+    date of issue of the invoice, according to the VAT directive.
+
+    This does not apply in Germany. Use date of delivery instead.
+
+    required:
+    `date_string`: Tax due date, Value ("CCYYMMDD")
+    """
+    date_string: DateString
 
 
 @dataclass
@@ -309,18 +345,39 @@ class ApplicableTradeTax:
     providing information about VAT breakdown by different categories,
     rates and exemption reasons.
 
+    required:
     `calculated_amount`: the applied tax
     `type_code`: VAT type code (fixed value = "VAT")
     `basis_amount`: (aka net price)
     `category_code`: Coded indication of a sales tax category
             (i.e. "S" for standard rate or "AE" for VAT reverse charge)
+
+    optional:
+    `exemption_reason`: VAT exemption reason (free text)
+    `line_total_basis_amount`: Goods value of the tax rate
+    `allowance_charge_basis_amount`: Total amount of charges /
+            allowances on document level.
+    `exemption_reason_code`: VAT exemption reason code
+    `tax_point_date`:  Tax due date.
+            This does not apply in Germany. Use date of delivery instead.
+    `due_date_type_code`: Code of the date when VAT becomes accountable
+            for buyer and seller
+    `rate_applicable_percent`: The VAT rate represented as percentage that
+            applies for the relevant VAT category (19% -> "19.00")
     """
 
     calculated_amount: CalculatedAmount
     type_code: TypeCode
     basis_amount: BasisAmount
     category_code: CategoryCode
-    rate_applicable_percent: RateApplicablePercent
+
+    exemption_reason: Optional[ExemptionReason] = None
+    line_total_basis_amount: Optional[LineTotalBasisAmount] = None
+    allowance_charge_basis_amount: Optional[AllowanceChargeBasisAmount] = None
+    exemption_reason_code; Optional[ExemptionReasonCode] = None
+    tax_point_date: Optional[TaxPointDate] = None
+    due_date_type_code: Optional[DueDateTypeCode] = None
+    rate_applicable_percent: Optional[RateApplicablePercent] = None
 
 
 @dataclass
@@ -353,7 +410,7 @@ class ApplicableHeaderTradeSettlement:
     `payer_trade_party`: PayerTradeParty
     `tax_applicable_trade_currency_exchange`: Specification of the invoice
             currency, local currency and exchange rate at a given time.
-    `specific_trade_settlement_payment_means`: sequence of Payment instructions
+    `specified_trade_settlement_payment_means`: sequence of Payment instructions
     """
 
     invoice_currency_code: InvoiceCurrencyCode
@@ -368,6 +425,6 @@ class ApplicableHeaderTradeSettlement:
     payee_trade_party: Optional[PayeeTradeParty] = None
     payer_trade_party: Optional[PayerTradeParty] = None
     tax_applicable_trade_currency_exchange: Optional[TaxApplicableTradeCurrencyExchange] = None
-    specific_trade_settlement_payment_means: Optional[Sequence[SpecifiedTradeSettlementPaymentMeans]] = field(
+    specified_trade_settlement_payment_means: Optional[Sequence[SpecifiedTradeSettlementPaymentMeans]] = field(
         default_factory=list
     )
