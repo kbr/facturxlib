@@ -34,11 +34,12 @@ class BaseTotalAmount(ValueClass):
 
 
 class QuantityClass(ValueClass):
-    """Base class for a Quantity with required Unit Code"""
+    """Base class for a Quantity with required Unit Code argument."""
 
     def __init__(self, value, unit_code):
         super().__init__(value)
-        self._node_attributes = {"unitCode": unit_code}
+        if unit_code is not None:
+            self._node_attributes = {"unitCode": unit_code}
 
 
 class SchemeClass(ValueClass):
@@ -127,6 +128,17 @@ class AttachmentBinaryObject:
 @cii_node("udt")
 class BasisAmount(ValueClass):
     """base amount (for further calculations)."""
+
+
+@cii_node("udt")
+class BasisPeriodMeasure(QuantityClass):
+    """
+    Quantity class with optional unitCode and different meaning
+    depending on the context. Used in tradesettlement.
+    """
+
+    def __init__(self, value, unit_code=None):
+        super().__init__(value, unit_code)
 
 
 @cii_node("udt")

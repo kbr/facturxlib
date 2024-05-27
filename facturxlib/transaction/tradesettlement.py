@@ -10,6 +10,7 @@ from ..nodes.common import (
     ActualAmount,
     AllowanceTotalAmount,
     BasisAmount,
+    BasisPeriodMeasure,
     BasisQuantity,
     BillingSpecifiedPeriodBase,
     CalculatedAmount,
@@ -24,10 +25,12 @@ from ..nodes.common import (
     ExemptionReasonCode,
     GrandTotalAmount,
     ID,
+    IncludedTradeTax,
     LineTotalAmount,
     RateApplicablePercent,
     Reason,
     ReasonCode,
+    ReceivableSpecifiedTradeAccountingAccount,
     RoundingAmount,
     TaxBasisTotalAmount,
     TaxTotalAmount,
@@ -35,7 +38,7 @@ from ..nodes.common import (
     TypeCode,
     ValueClass,
 )
-
+from ..nodes.documents import ReferencedDocumentType_4
 from ..nodes.tradeparty import (
     InvoicerTradeParty,
     InvoiceeTradeParty,
@@ -50,12 +53,36 @@ class AccountName(ValueClass):
 
 
 @cii_node("udt")
+class ActualDiscountAmount(ValueClass):
+    """Payment discount amount."""
+
+
+@cii_node("udt")
+class ActualPenaltyAmount(ValueClass):
+    """Payment penalty amount."""
+
+
+@cii_node("udt")
 class AllowanceChargeBasisAmount(ValueClass):
     """Total amount of charges / allowances on document level"""
+
 
 @cii_node("udt")
 class AppliedAmount(ValueClass):
     """Service fee amount"""
+
+
+@dataclass
+@cii_node("udt")
+class BasisDateTime:
+    """
+    Maturity Reference Date.
+
+    required:
+    `date_time_string`: Maturity Reference Date, Value
+    """
+
+    date_time_string: DateTimeString
 
 
 @cii_node("udt")
@@ -107,9 +134,40 @@ class CreditorReferenceID(ValueClass):
     """Bank assigned creditor identifier."""
 
 
+@cii_node("udt")
+class DirectDebitMandateID(ValueClass):
+    """Mandate reference for SEPA payment."""
+
+
+@dataclass
+@cii_node("udt")
+class DueDateDateTime:
+    """
+    Payment due date.
+
+    required:
+    `date_time_string`: The date when the payment is due
+    """
+
+    date_time_string: DateTimeString
+
+
 @cii_node("qdt")
 class DueDateTypeCode(ValueClass):
     """Tax due date, code."""
+
+
+@dataclass
+@cii_node("qdt")
+class FormattedReceivedDateTime:
+    """
+    Date of advanced payment.
+
+    required:
+    `date_time_string`: Date of advanced payment, value ("CCYYMMDD")
+    """
+
+    date_time_string: DateTimeString
 
 
 @cii_node("udt")
@@ -132,9 +190,24 @@ class InvoiceCurrencyCode(ValueClass):
     """represents a tag specifying a currency code like "EUR"."""
 
 
+@cii_node("ram")
+class InvoiceReferencedDocument(ReferencedDocumentType_4):
+    """Preceding Invoice Reference"""
+
+
 @cii_node("udt")
 class LineTotalBasisAmount(ValueClass):
     """Goods value of the tax rate."""
+
+
+@cii_node("udt")
+class PaidAmount(ValueClass):
+    """Advanced payment, value."""
+
+
+@cii_node("udt")
+class PartialPaymentAmount(ValueClass):
+    """Partial payment amount."""
 
 
 @cii_node("udt")
@@ -440,7 +513,6 @@ class CategoryTradeTax:
     rate_applicable_percent: Optional[RateApplicablePercent] = None
 
 
-
 @dataclass
 @cii_node("ram")
 class AppliedTradeTax:
@@ -457,9 +529,6 @@ class AppliedTradeTax:
     type_code: Optional[TypeCode] = None
     category_code: Optional[CategoryCode] = None
     rate_applicable_percent: Optional[RateApplicablePercent] = None
-
-
-
 
 
 @dataclass
@@ -499,8 +568,6 @@ class SpecifiedTradeAllowanceCharge:
     reason: Optional[Reason] = None
 
 
-
-
 @dataclass
 @cii_node("ram")
 class SpecifiedLogisticsServiceCharge:
@@ -521,6 +588,101 @@ class SpecifiedLogisticsServiceCharge:
     applied_trade_tax: Optional[Sequence[AppliedTradeTax]] = field(default_factory=list)
 
 
+@dataclass
+@cii_node("ram")
+class ApplicableTradePaymentPenaltyTerms:
+    """
+    Detailed information about penalties.
+
+    optional:
+    `basis_date_time`: Maturity Reference Date
+    `basis_period_measure`: Due date period
+    `basis_amount`: Payment penalty base amount
+    `calculation_percent`: Payment penalty percentage
+    `actual_penalty_amount`: Payment penalty amount
+    """
+
+    basis_date_time: Optional[BasisDateTime] = None
+    basis_period_measure: Optional[BasisPeriodMeasure] = None
+    basis_amount: Optional[BasisAmount] = None
+    calculation_percent: Optional[CalculationPercent] = None
+    actual_penalty_amount: Optional[ActualPenaltyAmount] = None
+
+
+@dataclass
+@cii_node("ram")
+class ApplicableTradePaymentDiscountTerms:
+    """
+    Detailed information about payment discounts
+
+    optional:
+    `basis_date_time`: Maturity Reference Date
+    `basis_period_measure`: Maturity Period
+    `basis_amount`: Payment discount base amount
+    `calculation_percent`: Payment discount percentage
+
+    """
+
+    basis_date_time: Optional[BasisDateTime] = None
+    basis_period_measure: Optional[BasisPeriodMeasure] = None
+    basis_amount: Optional[BasisAmount] = None
+    calculation_percent: Optional[CalculationPercent] = None
+    actual_discount_amount: Optional[ActualDiscountAmount] = None
+
+
+@dataclass
+@cii_node("ram")
+class SpecifiedTradePaymentTerms:
+    """
+    Detailed information about payment terms
+
+    optional:
+    `description`: A textual description of the payment terms that apply
+            to the amount due for payment (including description of
+            possible penalties).
+    `due_date_date_time`: The date when the payment is due.
+            The payment due date reflects the due date of the net
+            payment. For partial payments it states the first net due
+            date.
+    `direct_debit_mandate_id`: Unique identifier assigned by the payee
+            for referencing the direct debit mandate.
+    `partial_payment_amount`: Partial payment amount.
+    `applicable_trade_payment_penalty_terms`: Detailed information about penalties
+    `payee_trade_partys`: Sequence of PayeeTradeParty
+    """
+
+    description: Optional[Description] = None
+    due_date_date_time: Optional[DueDateDateTime] = None
+    direct_debit_mandate_id: Optional[DirectDebitMandateID] = None
+    partial_payment_amount: Optional[PartialPaymentAmount] = None
+    applicable_trade_payment_penalty_terms: Optional[ApplicableTradePaymentPenaltyTerms] = None
+    applicable_trade_payment_discount_terms: Optional[ApplicableTradePaymentDiscountTerms] = None
+    payee_trade_partys: Optional[Sequence[PayeeTradeParty]] = field(default_factory=list)
+
+
+@dataclass
+@cii_node("ram")
+class SpecifiedAdvancePayment:
+    """
+    Included tax for advanced payment.
+
+    required:
+    `paid_amount`: Advanced payment, value
+    `included_trade_taxes`: Sequence of Tax information on advanced payments
+
+    optional:
+    `formatted_received_date_time`: Date of advanced payment
+    """
+
+    paid_amount: PaidAmount
+    included_trade_taxes: Sequence[IncludedTradeTax]
+    formatted_received_date_time: Optional[FormattedReceivedDateTime] = None
+
+    _render_selection = """\
+        paid_amount
+        formatted_received_date_time
+        included_trade_taxes
+    """
 
 
 @dataclass
@@ -548,14 +710,22 @@ class ApplicableHeaderTradeSettlement:
     `invoice_issuer_reference`: Given seller reference number for routing
             purposes after biliteral agreement
     `invoicer_trade_party`: InvoicerTradeParty
-    `invoicee_trade_party`: Detailed information about the deviating invoice recipient
+    `invoicee_trade_party`: Detailed information about the deviating
+            invoice recipient
     `payee_trade_party`: Detailed contact information about the Payee
     `payer_trade_party`: PayerTradeParty
     `tax_applicable_trade_currency_exchange`: Specification of the invoice
             currency, local currency and exchange rate at a given time.
     `specified_trade_settlement_payment_means`: sequence of Payment instructions
     `billing_specified_period`: Detailed information about the invoicing period
-    `specified_trade_allowance_charge`: Sequence of document level allowances and/or charges.
+    `specified_trade_allowance_charge`: Sequence of document level
+            allowances and/or charges.
+    `specified_trade_payment_terms`: Sequence of detailed information
+            about payment terms
+    `invoice_referenced_document`: A group of business terms providing
+            information about a preceding invoices.
+    `receivable_specified_trade_accounting_accounts`: Sequence of
+            detailed information about the accounting reference
     """
 
     invoice_currency_code: InvoiceCurrencyCode
@@ -574,7 +744,13 @@ class ApplicableHeaderTradeSettlement:
         default_factory=list
     )
     billing_specified_period: Optional[BillingSpecifiedPeriod] = None
-    specified_trade_allowance_charge: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(
+    specified_trade_allowance_charge: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
+    specified_logistics_service_charge: Optional[Sequence[SpecifiedLogisticsServiceCharge]] = field(
         default_factory=list
     )
-    specified_logistics_service_charge: Optional[Sequence[SpecifiedLogisticsServiceCharge]] = field(default_factory=list)
+    specified_trade_payment_terms: Optional[Sequence[SpecifiedTradePaymentTerms]] = field(default_factory=list)
+    invoice_referenced_document: Optional[InvoiceReferencedDocument] = None
+    receivable_specified_trade_accounting_accounts: Optional[Sequence[ReceivableSpecifiedTradeAccountingAccount]] = (
+        field(default_factory=list)
+    )
+    specified_advanced_payments: Optional[Sequence[SpecifiedAdvancePayment]] = field(default_factory=list)
