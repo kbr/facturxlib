@@ -505,7 +505,7 @@ class ApplicableHeaderTradeSettlement:
             currency, local currency and exchange rate at a given time.
     `specified_trade_settlement_payment_means`: sequence of Payment instructions
     `billing_specified_period`: Detailed information about the invoicing period
-
+    `specified_trade_allowance_charge`: Sequence of document level allowances and/or charges.
     """
 
     invoice_currency_code: InvoiceCurrencyCode
@@ -524,3 +524,6 @@ class ApplicableHeaderTradeSettlement:
         default_factory=list
     )
     billing_specified_period: Optional[BillingSpecifiedPeriod] = None
+    specified_trade_allowance_charge: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(
+        default_factory=list
+    )
