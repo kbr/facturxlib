@@ -53,6 +53,10 @@ class AccountName(ValueClass):
 class AllowanceChargeBasisAmount(ValueClass):
     """Total amount of charges / allowances on document level"""
 
+@cii_node("udt")
+class AppliedAmount(ValueClass):
+    """Service fee amount"""
+
 
 @cii_node("udt")
 class BICID(ValueClass):
@@ -436,6 +440,28 @@ class CategoryTradeTax:
     rate_applicable_percent: Optional[RateApplicablePercent] = None
 
 
+
+@dataclass
+@cii_node("ram")
+class AppliedTradeTax:
+    """
+    Detailed information on tax information
+
+    optional:
+    `type_code`: tax type code according to UNTDID 5153 if it is not "VAT".
+            In this case the EXTENDED profile is required.
+    `category_code`: Tax category
+    `rate_applicable_percent`: The tax rate.
+    """
+
+    type_code: Optional[TypeCode] = None
+    category_code: Optional[CategoryCode] = None
+    rate_applicable_percent: Optional[RateApplicablePercent] = None
+
+
+
+
+
 @dataclass
 @cii_node("ram")
 class SpecifiedTradeAllowanceCharge:
@@ -471,6 +497,30 @@ class SpecifiedTradeAllowanceCharge:
     actual_amount: Optional[ActualAmount] = None
     reason_code: Optional[ReasonCode] = None
     reason: Optional[Reason] = None
+
+
+
+
+@dataclass
+@cii_node("ram")
+class SpecifiedLogisticsServiceCharge:
+    """
+    Detailed information on logistics service fees
+    (Transport and packaging costs).
+
+    required:
+    `description`: Service fee description
+    `applied_amount`: Service fee amount
+
+    optional:
+    `applied_trade_tax`: sequence of detailed information on tax information
+    """
+
+    description: Description
+    applied_amount: AppliedAmount
+    applied_trade_tax: Optional[Sequence[AppliedTradeTax]] = field(default_factory=list)
+
+
 
 
 @dataclass
@@ -527,3 +577,4 @@ class ApplicableHeaderTradeSettlement:
     specified_trade_allowance_charge: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(
         default_factory=list
     )
+    specified_logistics_service_charge: Optional[Sequence[SpecifiedLogisticsServiceCharge]] = field(default_factory=list)
