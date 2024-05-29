@@ -482,14 +482,6 @@ class TelephoneUniversalCommunication(UniversalCommunication):
 
 
 @cii_node("udt")
-class TestIndicator:
-    """Represents a boolean Indicator."""
-
-    def __init__(self, value):
-        self._sub_element = Indicator(value)
-
-
-@cii_node("udt")
 class TotalPrepaidAmount(ValueClass):
     """Paid amount."""
 
@@ -520,7 +512,7 @@ class BillingSpecifiedPeriodBase:
     SpecifiedLineTradeSettlement and ApplicableHeaderTradeSettlement
     where the latter has also Description attribute
 
-    optional arguments:
+    optional:
     `start_date_time`: start of a period "CCYYMMDD"
     `end_date_time`: end of a period "CCYYMMDD"
     """
@@ -529,15 +521,17 @@ class BillingSpecifiedPeriodBase:
     end_date_time: Optional[EndDateTime] = None
 
 
+@dataclass
 @cii_node("ram")
 class EmailURIUniversalCommunication:
     """
     Wrapper for the URIID node holding the email-address.
+
+    required:
+    `uri_id`: the email-address
     """
 
-    def __init__(self, email_address):
-        self._do_render = bool(email_address)
-        self._sub_element = URIID(email_address)
+    uri_id: URIID
 
 
 @dataclass
@@ -563,6 +557,33 @@ class DefinedTradeContact:
     telephone_universal_communication: Optional[TelephoneUniversalCommunication] = None
     fax_universal_communication: Optional[FaxUniversalCommunication] = None
     email_uri_universal_communication: Optional[EmailURIUniversalCommunication] = None
+
+    @classmethod
+    def from_basic_trade_party(cls, basic_trade_party):
+        """
+        Returns an instance with the data provided by a BasicTradeParty
+        instance (defines in facturxlib.basic).
+        """
+        telephone_universal_communication = None
+        fax_universal_communication = None
+        email_uri_universal_communication = None
+
+        if basic_trade_party.phone:
+            telephone_universal_communication = TelephoneUniversalCommunication(basic_trade_party.phone)
+        if basic_trade_party.fax:
+            fax_universal_communication = FaxUniversalCommunication(basic_trade_party.fax)
+        if basic_trade_party.email:
+            email_uri_universal_communication = EmailURIUniversalCommunication(
+                uri_id=URIID(basic_trade_party.email)
+            )
+        return cls(
+            telephone_universal_communication = telephone_universal_communication,
+            fax_universal_communication = fax_universal_communication,
+            email_uri_universal_communication = email_uri_universal_communication
+        )
+
+
+
 
 
 @dataclass
@@ -601,20 +622,15 @@ class IncludedNote:
     An aggregation of business terms to disclose free text which is
     invoice-relevant, as well as their qualification.
 
+    required:
     `content`: required, supported by BASIC
     `subject_code`: optional, supported by BASIC
     `content_code`: optional, supported by EXTENDED
     """
 
-    content: str
-    subject_code: Optional[str] = None
-    content_code: Optional[str] = None
-
-    def render(self, parent):
-        node = self.get_node(parent)
-        for item, obj in zip((self.content_code, self.content, self.subject_code), (ContentCode, Content, SubjectCode)):
-            if item is not None:
-                obj(item).render(node)
+    content: ContentCode
+    subject_code: Optional[Content] = None
+    content_code: Optional[SubjectCode] = None
 
 
 @dataclass
@@ -630,30 +646,41 @@ class PostalTradeAddress:
     city_name: Optional[CityName] = None
     country_sub_division_name: Optional[CountrySubDivisionName] = None
 
-    def render(self, parent):
-        node = self.get_node(parent)
-        # same as in self.__dict__.values() but in defined order:
-        for tag in (
-            self.postcode,
-            self.line_one,
-            self.line_two,
-            self.line_three,
-            self.city_name,
-            self.country_id,
-        ):
-            if tag and tag._value:
-                tag.render(node)
+    _suppress_nodes_with_empty_values = """\
+        line_one
+        line_two
+        line_three
+        postcode
+        city_name
+        country_sub_division_name
+    """
+
+    _render_selection = """\
+        line_one
+        line_two
+        line_three
+        postcode
+        city_name
+        country_id
+        country_sub_division_name
+    """
 
     @classmethod
-    def from_pure_postal_address(cls, address):
+    def from_basic_trade_party(cls, basic_trade_party):
+        """
+        Returns an instance initialized with the data from a
+        `BasicTradeParty` instance. This class is defined in
+        `facturxlib.basic` and provides the required attributes to
+        create a `PostalTradeAddress`.
+        """
         return cls(
-            country_id=CountryID(address.country_id),
-            postcode=PostcodeCode(address.postcode),
-            line_one=LineOne(address.line_one),
-            line_two=LineTwo(address.line_two),
-            line_three=LineThree(address.line_three),
-            city_name=CityName(address.city_name),
-            country_sub_division_name=CountrySubDivisionName(address.country_sub_division_name),
+            country_id=CountryID(basic_trade_party.country_id),
+            postcode=PostcodeCode(basic_trade_party.postcode),
+            line_one=LineOne(basic_trade_party.line_one),
+            line_two=LineTwo(basic_trade_party.line_two),
+            line_three=LineThree(basic_trade_party.line_three),
+            city_name=CityName(basic_trade_party.city_name),
+            country_sub_division_name=CountrySubDivisionName(basic_trade_party.country_sub_division_name),
         )
 
 

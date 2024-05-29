@@ -222,11 +222,3 @@ class ReferencedDocumentType_8:
     attachment_binary_object: Optional[AttachmentBinaryObject] = None
     reference_type_code: Optional[ReferenceTypeCode] = None
     formatted_issue_date_time: Optional[FormattedIssueDateTime] = None
-
-    def _render(self, node):
-        """
-        names as a sequence does not provide a render-method and has to
-        processed separately.
-        """
-        for name in self.names:
-            name.render(node)

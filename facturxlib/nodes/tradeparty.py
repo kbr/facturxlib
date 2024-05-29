@@ -23,8 +23,6 @@ from .common import (
 class BaseTradeParty:
     """
     Base implementation for all TradePartys
-    Subclasses must apply the @cii_node decorator to make the
-    `render`-method work.
 
     required:
     `name`: trade party name
@@ -34,7 +32,7 @@ class BaseTradeParty:
     `id`: deviating id
     `global_id`: deviating global id
     `description`: text node if further description is needed.
-    `specified_tax_registration`
+    `specified_tax_registration`: VAT ID or local Tax ID
     """
 
     name: Name
@@ -45,6 +43,35 @@ class BaseTradeParty:
     specified_legal_organization: Optional[SpecifiedLegalOrganization] = None
     defined_trade_contact: Optional[Sequence[DefinedTradeContact]] = field(default_factory=list)
     specified_tax_registration: Optional[SpecifiedTaxRegistration] = None
+
+#     _suppress_nodes_with_empty_values = """\
+#         defined_trade_contact
+#     """
+
+    @classmethod
+    def from_basic_trade_party(cls, basic_trade_party):
+        """
+        Returns an instance initialized with the data from a
+        `BasicTradeParty` instance. This class is defined in
+        `facturxlib.basic`.
+        """
+        id = basic_trade_party.identifier
+        if not id:
+            id = None  # replace boolean False with None
+        specified_tax_registration = None
+        if basic_trade_party.specified_tax_registration and basic_trade_party.specified_tax_registration_scheme:
+            specified_tax_registration = SpecifiedTaxRegistration(
+                value=basic_trade_party.specified_tax_registration,
+                scheme_id=basic_trade_party.specified_tax_registration_scheme
+            )
+
+        return cls(
+            name=Name(basic_trade_party.name),
+            postal_address=PostalTradeAddress.from_basic_trade_party(basic_trade_party),
+            id=id,
+            defined_trade_contact=[DefinedTradeContact.from_basic_trade_party(basic_trade_party)],
+            specified_tax_registration=specified_tax_registration
+        )
 
 
 @cii_node("ram")

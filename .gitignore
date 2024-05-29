@@ -8,3 +8,4 @@ __pycache__
 facturxlib.egg*
 test.py
 test_basic.py
+test_pure_basic.py

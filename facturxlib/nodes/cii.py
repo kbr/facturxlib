@@ -1,8 +1,6 @@
 """
 cross industry incoice:
-
 class decorator for node-rendering.
-
 """
 
 import xml.etree.ElementTree as ET
@@ -27,20 +25,17 @@ def cii_node(namespace=None):
         return ET.SubElement(parent, tag)
 
     def render(self, parent):
-        # if the instance has the flag _do_render and this flag is False,
-        # then skip this node:
+        # skip nodes marked to not get rendered
         if not getattr(self, "_do_render", True):
             return
 
-        # check whether a ValueClass with no value should get rendered
+        # check whether nodes with no value should get rendered
         if getattr(self, DO_NOT_RENDER_ON_EMPTY_VALUE, False):
             if not getattr(self, "_value", False):
                 return
 
-        # create the node:
+        # create the node and add node-attributes and the content, if given:
         node = self.get_node(parent)
-
-        # add node-attributes and the content, if given:
         if hasattr(self, "_node_attributes"):
             for key, value in self._node_attributes.items():
                 node.set(key, value)
@@ -54,18 +49,15 @@ def cii_node(namespace=None):
                 item = getattr(self, entry, None)
                 setattr(item, DO_NOT_RENDER_ON_EMPTY_VALUE, True)
 
-        # check for subnode-selection to render:
+        # give render-selection exclusive priority to attributes:
         selection = getattr(self, "_render_selection", None)
         if selection:
             for attribute_name in selection.split():
                 if attr := getattr(self, attribute_name, None):
                     _render_object(attr, node)
         else:
-            # for all instance attributes: try to render
             for item in self.__dict__.values():
                 _render_object(item, node)
-
-        # chance to do some additonal stuff
         self._render(node)
 
     def _render_object(obj, node):
@@ -82,9 +74,7 @@ def cii_node(namespace=None):
             pass
 
     def _render(self, node):
-        """
-        Specific render-fallback. Overload this method in case of need.
-        """
+        """Specific render-fallback. Overload this method in case of need."""
         pass
 
     def wrapper(cls):

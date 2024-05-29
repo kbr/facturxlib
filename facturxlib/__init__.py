@@ -15,10 +15,7 @@ from .nodes.exchange import (
     ExchangedDocumentContext,
 )
 
-from .facturx import (
-    CrossIndustryInvoice,
-    CrossIndustryInvoiceData,
-)
+from .facturx import build_invoice
 
 from .transaction.basic import (
     PurePostalAdress,
