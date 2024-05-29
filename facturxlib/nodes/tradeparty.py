@@ -44,9 +44,6 @@ class BaseTradeParty:
     defined_trade_contact: Optional[Sequence[DefinedTradeContact]] = field(default_factory=list)
     specified_tax_registration: Optional[SpecifiedTaxRegistration] = None
 
-#     _suppress_nodes_with_empty_values = """\
-#         defined_trade_contact
-#     """
 
     @classmethod
     def from_basic_trade_party(cls, basic_trade_party):

@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional, Sequence
 
 import pytest
 
@@ -161,7 +162,6 @@ class Suppress:
         ("3", "", "<ns:Suppress><ns:VC>3</ns:VC></ns:Suppress>"),
     ]
 )
-
 def test_render_with_suppress_setting(x, y, expected, parent):
     node = Suppress(a=VC(x), b=VC(y))
     check_result(parent, node, expected)
@@ -178,7 +178,8 @@ class Suppress2:
     _render_selection = "b c"
     _suppress_nodes_with_empty_values = "b"
 
-def test_render_with_suppress_setting(parent):
+def test_render_with_suppress2_setting(parent):
     node = Suppress2(a=VC("3"), b=VC(""), c=VC("42"))
     expected = "<ns:Suppress2><ns:VC>42</ns:VC></ns:Suppress2>"
     check_result(parent, node, expected)
+

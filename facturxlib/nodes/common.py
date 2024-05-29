@@ -576,13 +576,18 @@ class DefinedTradeContact:
             email_uri_universal_communication = EmailURIUniversalCommunication(
                 uri_id=URIID(basic_trade_party.email)
             )
-        return cls(
+        instance = cls(
             telephone_universal_communication = telephone_universal_communication,
             fax_universal_communication = fax_universal_communication,
             email_uri_universal_communication = email_uri_universal_communication
         )
-
-
+        if not any((
+            telephone_universal_communication,
+            fax_universal_communication,
+            email_uri_universal_communication,
+        )):
+            instance._do_render = False
+        return instance
 
 
 
