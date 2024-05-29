@@ -44,7 +44,6 @@ class BaseTradeParty:
     defined_trade_contact: Optional[Sequence[DefinedTradeContact]] = field(default_factory=list)
     specified_tax_registration: Optional[SpecifiedTaxRegistration] = None
 
-
     @classmethod
     def from_basic_trade_party(cls, basic_trade_party):
         """
@@ -59,7 +58,7 @@ class BaseTradeParty:
         if basic_trade_party.specified_tax_registration and basic_trade_party.specified_tax_registration_scheme:
             specified_tax_registration = SpecifiedTaxRegistration(
                 value=basic_trade_party.specified_tax_registration,
-                scheme_id=basic_trade_party.specified_tax_registration_scheme
+                scheme_id=basic_trade_party.specified_tax_registration_scheme,
             )
 
         return cls(
@@ -67,7 +66,7 @@ class BaseTradeParty:
             postal_address=PostalTradeAddress.from_basic_trade_party(basic_trade_party),
             id=id,
             defined_trade_contact=[DefinedTradeContact.from_basic_trade_party(basic_trade_party)],
-            specified_tax_registration=specified_tax_registration
+            specified_tax_registration=specified_tax_registration,
         )
 
 

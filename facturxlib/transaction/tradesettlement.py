@@ -425,11 +425,6 @@ class SpecifiedTradeSettlementHeaderMonetarySummation:
         total_prepaid_amount
         due_payable_amount
     """
-    _suppress_nodes_with_empty_values = """\
-        charge_total_amount
-        allowance_total_amount
-        rounding_amount
-    """
 
 
 @dataclass
@@ -474,6 +469,42 @@ class ApplicableTradeTax:
     tax_point_date: Optional[TaxPointDate] = None
     due_date_type_code: Optional[DueDateTypeCode] = None
     rate_applicable_percent: Optional[RateApplicablePercent] = None
+
+    # don't render empty default values given to the classmethod
+    # `from_basic_profile`:
+    _suppress_nodes_with_empty_values = """\
+        exemption_reason
+        exemption_reason_code
+        rate_applicable_percent
+        due_date_type_code
+    """
+
+    @classmethod
+    def from_basic_profile(
+        cls,
+        basis_amount: str,
+        calculated_amount: str,
+        rate_applicable_percent: str = "",
+        category_code="S",
+        type_code: str = "VAT",
+        exemption_reason: str = "",
+        exemption_reason_code: str = "",
+        due_date_type_code: str = "",
+    ):
+        """
+        Convenience constructor to convert the given arguments from
+        strings to the appropriate nodes.
+        """
+        return cls(
+            calculated_amount=CalculatedAmount(calculated_amount),
+            type_code=TypeCode(type_code),
+            basis_amount=BasisAmount(basis_amount),
+            category_code=CategoryCode(category_code),
+            exemption_reason_code=ExemptionReasonCode(exemption_reason_code),
+            exemption_reason=ExemptionReason(exemption_reason),
+            rate_applicable_percent=RateApplicablePercent(rate_applicable_percent),
+            due_date_type_code=DueDateTypeCode(due_date_type_code),
+        )
 
 
 @cii_node("ram")

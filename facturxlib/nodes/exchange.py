@@ -23,6 +23,7 @@ from .common import (
 DEFAULT_GUIDELINE_SPECIFICATION = "urn:cen.eu:en16931:2017"
 DEFAULT_INVOICE_TYPE_CODE = "380"  # Commercial invoice
 
+
 @dataclass
 @cii_node("udt")
 class IssueDateTime:
@@ -156,8 +157,9 @@ class ExchangedDocumentContext:
             business = BusinessProcessSpecifiedDocumentContextParameter(id=business_process_id)
         return cls(
             guideline_specified_document_context_parameter=guideline,
-            business_process_specified_document_context_parameter=business
+            business_process_specified_document_context_parameter=business,
         )
+
 
 @dataclass
 @cii_node("ram")
@@ -207,9 +209,7 @@ class ExchangedDocument:
     """
 
     @classmethod
-    def from_basic_profile(
-        cls, invoice_id, issue_date_time, type_code=DEFAULT_INVOICE_TYPE_CODE, included_notes=None
-    ):
+    def from_basic_profile(cls, invoice_id, issue_date_time, type_code=DEFAULT_INVOICE_TYPE_CODE, included_notes=None):
         """
         Return an Instance based on data supported by the BASIC profile.
 
@@ -228,5 +228,5 @@ class ExchangedDocument:
             id=ID(value=invoice_id),
             issue_date_time=issue_date_time,
             type_code=TypeCode(value=type_code),
-            included_notes=included_notes
+            included_notes=included_notes,
         )

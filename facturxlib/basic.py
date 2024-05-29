@@ -14,7 +14,6 @@ from .nodes.common import (
     GrandTotalAmount,
     IncludedNote,
     LineTotalAmount,
-    PostalTradeAddress,
     TaxBasisTotalAmount,
     TaxTotalAmount,
 )
@@ -22,7 +21,6 @@ from .nodes.common import (
 from .nodes.tradeparty import (
     BuyerTradeParty,
     SellerTradeParty,
-    SellerTaxRepresentativeTradeParty,
     ShipToTradeParty,
 )
 
@@ -49,6 +47,7 @@ from .transaction.tradedelivery import (
 from .transaction.tradesettlement import (
     ApplicableTradeTax,
     ApplicableHeaderTradeSettlement,
+    InvoiceCurrencyCode,
     SpecifiedTradeSettlementHeaderMonetarySummation,
 )
 
@@ -105,9 +104,6 @@ class BasicTradeParty:
     identifier: str = ""
 
 
-
-
-
 def build_basic_invoice(
     invoice_id: str,
     invoice_issue_date: str,
@@ -119,19 +115,18 @@ def build_basic_invoice(
     tax_total_amounts: Sequence[TaxTotalAmount],
     grand_total_amount: GrandTotalAmount,
     due_payable_amount: str,
-
     delivery_occurence_date: Optional[str] = None,
     invoice_currency_code: str = DEFAULT_INVOICE_CURRENCY,
     invoice_type_code: str = DEFAULT_INVOICE_TYPE_CODE,
-    document_included_notes: Optional[IncludedNote]=None,
+    document_included_notes: Optional[IncludedNote] = None,
     document_guideline_specification: str = DEFAULT_GUIDELINE_SPECIFICATION,
     document_business_process_id: Optional[str] = None,
-    agreement_buyer_reference:  Optional[BuyerReference] = None,
-    agreement_buyer_order_referenced_document: Optional[BuyerOrderReferencedDocument]=None,
-    agreement_contract_referenced_document: Optional[ContractReferencedDocument]=None,
-    delivery_ship_to_trade_party: Optional[ShipToTradeParty]=None,
-    delivery_actual_delivery_supply_chain_event: Optional[ActualDeliverySupplyChainEvent]=None,
-    delivery_despatch_advice_referenced_document: Optional[DespatchAdviceReferencedDocument]=None,
+    agreement_buyer_reference: Optional[BuyerReference] = None,
+    agreement_buyer_order_referenced_document: Optional[BuyerOrderReferencedDocument] = None,
+    agreement_contract_referenced_document: Optional[ContractReferencedDocument] = None,
+    delivery_ship_to_trade_party: Optional[ShipToTradeParty] = None,
+    delivery_actual_delivery_supply_chain_event: Optional[ActualDeliverySupplyChainEvent] = None,
+    delivery_despatch_advice_referenced_document: Optional[DespatchAdviceReferencedDocument] = None,
 ):
     """
     Wrapper to build a CrossIndustryInvoice from data according to the
@@ -156,7 +151,7 @@ def build_basic_invoice(
     required/optional:
     `delivery_occurence_date`: this value (as "CCYYMMDD") is optional
             but mandatory in Germany. It can be given here or on line
-            level. If it is given here, the value will override the
+            level. If it is given here, the value will override an
             optional `delivery_actual_delivery_supply_chain_event`
             argument.
     `invoice_currency`: required and preset with "EUR" as default.
@@ -183,14 +178,13 @@ def build_basic_invoice(
             Detailed information on the corresponding despatch advice
     """
     exchanged_document_context = ExchangedDocumentContext.from_basic_profile(
-        specification_identifier=document_guideline_specification,
-        business_process_id=document_business_process_id
+        specification_identifier=document_guideline_specification, business_process_id=document_business_process_id
     )
     exchanged_document = ExchangedDocument.from_basic_profile(
         invoice_id=invoice_id,
         issue_date_time=invoice_issue_date,
         type_code=invoice_type_code,
-        included_notes=document_included_notes
+        included_notes=document_included_notes,
     )
 
     applicable_header_trade_agreement = ApplicableHeaderTradeAgreement(
@@ -198,7 +192,7 @@ def build_basic_invoice(
         seller=SellerTradeParty.from_basic_trade_party(seller),
         buyer_reference=agreement_buyer_reference,
         buyer_order_referenced_document=agreement_buyer_order_referenced_document,
-        contract_referenced_document=agreement_contract_referenced_document
+        contract_referenced_document=agreement_contract_referenced_document,
     )
 
     if delivery_occurence_date:
@@ -207,7 +201,7 @@ def build_basic_invoice(
     applicable_header_trade_delivery = ApplicableHeaderTradeDelivery(
         ship_to_trade_party=delivery_ship_to_trade_party,
         actual_delivery_supply_chain_event=delivery_actual_delivery_supply_chain_event,
-        despatch_advice_referenced_document=delivery_despatch_advice_referenced_document
+        despatch_advice_referenced_document=delivery_despatch_advice_referenced_document,
     )
 
     specified_trade_settlement_header_monetary_summation = SpecifiedTradeSettlementHeaderMonetarySummation(
@@ -215,18 +209,24 @@ def build_basic_invoice(
         tax_basis_total_amount=tax_basis_total_amount,
         tax_total_amounts=tax_total_amounts,
         grand_total_amount=grand_total_amount,
-        due_payable_amount=due_payable_amount,
+        due_payable_amount=DuePayableAmount(due_payable_amount),
+    )
+
+    applicable_header_trade_settlement = ApplicableHeaderTradeSettlement(
+        invoice_currency_code=InvoiceCurrencyCode(invoice_currency_code),
+        applicable_trade_taxes=applicable_trade_taxes,
+        specified_trade_settlement_header_monetary_summation=specified_trade_settlement_header_monetary_summation,
     )
 
     supply_chain_trade_transaction = SupplyChainTradeTransAction(
         applicable_header_trade_agreement=applicable_header_trade_agreement,
         applicable_header_trade_delivery=applicable_header_trade_delivery,
-        applicable_header_trade_settlement=MockNode(),  #: ApplicableHeaderTradeSettlement
-        line_items=[]
+        applicable_header_trade_settlement=applicable_header_trade_settlement,
+        line_items=[],
     )
 
     return build_invoice(
         exchanged_document_context=exchanged_document_context,
         exchanged_document=exchanged_document,
-        supply_chain_trade_transaction=supply_chain_trade_transaction
+        supply_chain_trade_transaction=supply_chain_trade_transaction,
     )
