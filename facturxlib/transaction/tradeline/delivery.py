@@ -12,9 +12,7 @@ from facturxlib.nodes.common import (
     BilledQuantity,
     QuantityClass,
 )
-
 from facturxlib.nodes.documents import ReferencedDocumentType_5
-
 from facturxlib.nodes.tradeparty import (
     ShipToTradeParty,
     UltimateShipToTradeParty,

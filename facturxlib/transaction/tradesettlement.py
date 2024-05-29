@@ -566,7 +566,7 @@ class AppliedTradeTax:
 @cii_node("ram")
 class SpecifiedTradeAllowanceCharge:
     """
-    Document level allowances /charges.
+    Document level allowances / charges.
     Discounts, like withheld taxes, can be stated in this group.
 
     required:
@@ -749,7 +749,7 @@ class ApplicableHeaderTradeSettlement:
             currency, local currency and exchange rate at a given time.
     `specified_trade_settlement_payment_means`: sequence of Payment instructions
     `billing_specified_period`: Detailed information about the invoicing period
-    `specified_trade_allowance_charge`: Sequence of document level
+    `specified_trade_allowance_charges`: Sequence of document level
             allowances and/or charges.
     `specified_trade_payment_terms`: Sequence of detailed information
             about payment terms
@@ -775,7 +775,7 @@ class ApplicableHeaderTradeSettlement:
         default_factory=list
     )
     billing_specified_period: Optional[BillingSpecifiedPeriod] = None
-    specified_trade_allowance_charge: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
+    specified_trade_allowance_charges: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
     specified_logistics_service_charge: Optional[Sequence[SpecifiedLogisticsServiceCharge]] = field(
         default_factory=list
     )

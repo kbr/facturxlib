@@ -9,12 +9,6 @@ from .tradeline import IncludedSupplyChainTradeLineItem
 from .tradesettlement import ApplicableHeaderTradeSettlement
 
 
-# @cii_node("ram")
-# class TransAction:
-#     _tag_name = "SupplyChainTradeTransAction"
-#
-
-
 @dataclass
 @cii_node("ram")
 class SupplyChainTradeTransAction:

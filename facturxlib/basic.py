@@ -2,7 +2,7 @@
 Interface for the BASIC profile.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 from .facturx import build_invoice
@@ -14,6 +14,7 @@ from .nodes.common import (
     GrandTotalAmount,
     IncludedNote,
     LineTotalAmount,
+    ReceivableSpecifiedTradeAccountingAccount,
     TaxBasisTotalAmount,
     TaxTotalAmount,
 )
@@ -47,8 +48,13 @@ from .transaction.tradedelivery import (
 from .transaction.tradesettlement import (
     ApplicableTradeTax,
     ApplicableHeaderTradeSettlement,
+    BillingSpecifiedPeriod,
     InvoiceCurrencyCode,
+    InvoiceReferencedDocument,
+    SpecifiedTradeAllowanceCharge,
+    SpecifiedTradePaymentTerms,
     SpecifiedTradeSettlementHeaderMonetarySummation,
+    SpecifiedTradeSettlementPaymentMeans,
 )
 
 
@@ -127,6 +133,16 @@ def build_basic_invoice(
     delivery_ship_to_trade_party: Optional[ShipToTradeParty] = None,
     delivery_actual_delivery_supply_chain_event: Optional[ActualDeliverySupplyChainEvent] = None,
     delivery_despatch_advice_referenced_document: Optional[DespatchAdviceReferencedDocument] = None,
+    specified_trade_settlement_payment_means: Optional[Sequence[SpecifiedTradeSettlementPaymentMeans]] = field(
+        default_factory=list
+    ),
+    billing_specified_period: Optional[BillingSpecifiedPeriod] = None,
+    specified_trade_allowance_charges: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list),
+    specified_trade_payment_terms: Optional[Sequence[SpecifiedTradePaymentTerms]] = field(default_factory=list),
+    invoice_referenced_document: Optional[InvoiceReferencedDocument] = None,
+    receivable_specified_trade_accounting_accounts: Optional[
+        Sequence[ReceivableSpecifiedTradeAccountingAccount]
+    ] = field(default_factory=list),
 ):
     """
     Wrapper to build a CrossIndustryInvoice from data according to the
@@ -176,6 +192,17 @@ def build_basic_invoice(
             Detailed information about the actual delivery
     `delivery_despatch_advice_referenced_document`:
             Detailed information on the corresponding despatch advice
+
+    additional optional subnodes without required attributes:
+    `specified_trade_settlement_payment_means`:
+            Sequence of SpecifiedTradeSettlementPaymentMeans
+    `billing_specified_period`: Detailed information about the invoicing period
+    `specified_trade_allowance_charges`: Document level allowances / charges.
+    `specified_trade_payment_terms`:
+            Sequence of detailed information about payment terms
+    `invoice_referenced_document`: Preceding Invoice Reference
+    `receivable_specified_trade_accounting_accounts`:
+            Sequence of detailed information on the accounting reference
     """
     exchanged_document_context = ExchangedDocumentContext.from_basic_profile(
         specification_identifier=document_guideline_specification, business_process_id=document_business_process_id
@@ -216,6 +243,11 @@ def build_basic_invoice(
         invoice_currency_code=InvoiceCurrencyCode(invoice_currency_code),
         applicable_trade_taxes=applicable_trade_taxes,
         specified_trade_settlement_header_monetary_summation=specified_trade_settlement_header_monetary_summation,
+        specified_trade_settlement_payment_means=specified_trade_settlement_payment_means,
+        billing_specified_period=billing_specified_period,
+        specified_trade_allowance_charges=specified_trade_allowance_charges,
+        specified_trade_payment_terms=specified_trade_payment_terms,
+        receivable_specified_trade_accounting_accounts=receivable_specified_trade_accounting_accounts,
     )
 
     supply_chain_trade_transaction = SupplyChainTradeTransAction(

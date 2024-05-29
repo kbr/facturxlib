@@ -29,7 +29,6 @@ from facturxlib.nodes.common import (
     TypeCode,
     ValueClass,
 )
-
 from facturxlib.nodes.documents import (
     ReferencedDocumentType_3,
     ReferencedDocumentType_4,
