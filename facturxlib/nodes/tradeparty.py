@@ -6,11 +6,10 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 from .cii import cii_node
-
 from .common import (
+    ID,
     DefinedTradeContact,
     Description,
-    ID,
     GlobalID,
     Name,
     PostalTradeAddress,

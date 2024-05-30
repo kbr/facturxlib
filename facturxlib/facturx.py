@@ -12,7 +12,6 @@ from .nodes.exchange import (
 )
 from .transaction.supplychain import SupplyChainTradeTransAction
 
-
 DEFAULT_XML_HEADER = "<?xml version='1.0' encoding='UTF-8' ?>"
 
 

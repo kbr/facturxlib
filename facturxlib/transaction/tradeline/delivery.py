@@ -85,3 +85,12 @@ class SpecifiedLineTradeDelivery:
     despatch_advice_referenced_document: Optional[DespatchAdviceReferencedDocument] = None
     receiving_advice_referenced_document: Optional[ReceivingAdviceReferencedDocument] = None
     delivery_note_referenced_document: Optional[DeliveryNoteReferencedDocument] = None
+
+    @classmethod
+    def from_basic_line_item(cls, basic_line_item):
+        """basic_line_item is a `BasicLineItem` instance."""
+        return cls(
+            billed_quantity=BilledQuantity(
+                value=basic_line_item.billed_quantity, unit_code=basic_line_item.billed_quantity_unit_code
+            )
+        )

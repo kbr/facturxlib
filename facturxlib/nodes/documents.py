@@ -62,8 +62,8 @@ All subclasses should be decorated by @cii_node to be renderable.
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
-
 from .common import (
+    URIID,
     AttachmentBinaryObject,
     FormattedIssueDateTime,
     IssuerAssignedID,
@@ -71,7 +71,6 @@ from .common import (
     Name,
     ReferenceTypeCode,
     TypeCode,
-    URIID,
 )
 
 

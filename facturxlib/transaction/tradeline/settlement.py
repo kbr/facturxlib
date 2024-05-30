@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 from facturxlib.nodes.common import (
-    cii_node,
     ActualAmount,
     AllowanceTotalAmount,
     BasisAmount,
@@ -15,19 +14,20 @@ from facturxlib.nodes.common import (
     CalculatedAmount,
     CalculationPercent,
     CategoryCode,
-    ChargeTotalAmount,
     ChargeIndicator,
+    ChargeTotalAmount,
     ExemptionReason,
     ExemptionReasonCode,
     GrandTotalAmount,
     LineTotalAmount,
+    RateApplicablePercent,
     Reason,
     ReasonCode,
-    RateApplicablePercent,
     ReceivableSpecifiedTradeAccountingAccount,
     TaxTotalAmount,
     TypeCode,
     ValueClass,
+    cii_node,
 )
 from facturxlib.nodes.documents import (
     ReferencedDocumentType_3,
@@ -67,9 +67,9 @@ class SpecifiedTradeSettlementLineMonetarySummation:
     total_allowance_charge_amount: Optional[TotalAllowanceChargeAmount] = None
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
-        return cls(line_total_amount=LineTotalAmount(line.line_total_amount))
+    def from_basic_line_item(cls, basic_line_item):
+        """basic_line_item is a BisicLineItem instance."""
+        return cls(line_total_amount=LineTotalAmount(basic_line_item.line_total_amount))
 
 
 @dataclass
@@ -101,13 +101,10 @@ class ApplicableTradeTax:
     exemption_reason_code: Optional[ExemptionReasonCode] = None
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
+    def from_basic_line_item(cls, basic_line_item):
+        """basic_line_item is a BasicLineItem instannce."""
         return cls(
-            calculated_amount=CalculatedAmount(line.calculated_amount),
-            category_code=CategoryCode(line.category_code),
-            type_code=TypeCode(line.type_code),
-            rate_applicable_percent=RateApplicablePercent(line.rate_applicable_percent),
+            category_code=CategoryCode(basic_line_item.category_code), type_code=TypeCode(basic_line_item.type_code)
         )
 
 
@@ -195,12 +192,11 @@ class SpecifiedLineTradeSettlement:
     )
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
-
+    def from_basic_line_item(cls, basic_line_item):
+        """basic_line_item is a BasicLineItem instannce."""
         return cls(
-            applicable_trade_tax=ApplicableTradeTax.from_basic_profile(line),
-            specified_trade_settlement_line_monetary_summation=(
-                SpecifiedTradeSettlementLineMonetarySummation.from_basic_profile(line)
+            applicable_trade_tax=ApplicableTradeTax.from_basic_line_item(basic_line_item),
+            specified_trade_settlement_line_monetary_summation=SpecifiedTradeSettlementLineMonetarySummation.from_basic_line_item(
+                basic_line_item
             ),
         )

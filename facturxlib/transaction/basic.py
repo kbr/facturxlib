@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
-
 from ..nodes.common import (
     ActualDeliverySupplyChainEvent,
     AllowanceTotalAmount,
@@ -22,23 +21,18 @@ from ..nodes.common import (
     TotalPrepaidAmount,
     TypeCode,
 )
-
 from .supplychain import SupplyChainTradeTransAction
-
 from .tradeagreement import (
     ApplicableHeaderTradeAgreement,
     BuyerTradeParty,
     SellerTradeParty,
 )
-
 from .tradedelivery import (
     ApplicableHeaderTradeDelivery,
 )
-
 from .tradeline import (
     IncludedSupplyChainTradeLineItem,
 )
-
 from .tradesettlement import (
     ApplicableHeaderTradeSettlement,
     ApplicableTradeTax,

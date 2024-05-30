@@ -18,7 +18,6 @@ from facturxlib.nodes.common import (
     Reason,
     ReasonCode,
 )
-
 from facturxlib.nodes.documents import (
     ReferencedDocumentType_1,
     ReferencedDocumentType_5,
@@ -113,13 +112,13 @@ class NetPriceProductTradePrice:
     included_trade_tax: Optional[IncludedTradeTax] = None
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
-        if line.basis_quantity:
-            basis_quantity = BasisQuantity(line.basis_quantity, line.unit_code)
+    def from_basic_line_item(cls, basic_line_item):
+        """line is a BasicLineItem instance."""
+        if basic_line_item.basis_quantity:
+            basis_quantity = BasisQuantity(basic_line_item.basis_quantity, basic_line_item.basis_quantity_unit_code)
         else:
             basis_quantity = None
-        return cls(charge_amount=ChargeAmount(line.charge_amount), basis_quantity=basis_quantity)
+        return cls(charge_amount=ChargeAmount(basic_line_item.charge_amount), basis_quantity=basis_quantity)
 
 
 @dataclass
@@ -150,6 +149,6 @@ class SpecifiedLineTradeAgreement:
     )
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
-        return cls(net_product_trade_price=NetPriceProductTradePrice.from_basic_profile(line))
+    def from_basic_line_item(cls, basic_line_item):
+        """line is a BasicLineItem instance."""
+        return cls(net_product_trade_price=NetPriceProductTradePrice.from_basic_line_item(basic_line_item))

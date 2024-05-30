@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 
 from ..nodes.cii import cii_node
 from ..nodes.common import (
+    ID,
     ActualAmount,
     AllowanceTotalAmount,
     BasisAmount,
@@ -18,13 +19,12 @@ from ..nodes.common import (
     CategoryCode,
     ChargeIndicator,
     ChargeTotalAmount,
-    Description,
     DateTimeString,
+    Description,
     DuePayableAmount,
     ExemptionReason,
     ExemptionReasonCode,
     GrandTotalAmount,
-    ID,
     IncludedTradeTax,
     LineTotalAmount,
     RateApplicablePercent,
@@ -40,8 +40,8 @@ from ..nodes.common import (
 )
 from ..nodes.documents import ReferencedDocumentType_4
 from ..nodes.tradeparty import (
-    InvoicerTradeParty,
     InvoiceeTradeParty,
+    InvoicerTradeParty,
     PayeeTradeParty,
     PayerTradeParty,
 )

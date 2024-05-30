@@ -51,6 +51,6 @@ class AssociatedDocumentLineDocument:
     included_note: Optional[IncludedNote] = None
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
-        return cls(line_id=LineID(line.line_id))
+    def from_basic_line_item(cls, basic_line_item):
+        """line is a `BasicLineItem` instance."""
+        return cls(line_id=LineID(basic_line_item.line_id))

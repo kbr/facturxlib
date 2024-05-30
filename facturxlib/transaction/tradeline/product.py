@@ -7,14 +7,14 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 from facturxlib.nodes.common import (
-    cii_node,
+    ID,
     Description,
     GlobalID,
-    ID,
     Name,
     QuantityClass,
     TypeCode,
     ValueClass,
+    cii_node,
 )
 
 
@@ -209,6 +209,6 @@ class SpecifiedTradeProduct:
     included_referenced_product: Optional[IncludedReferencedProduct] = None
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
-        return cls(name=Name(line.name))
+    def from_basic_line_item(cls, basic_line_item):
+        """line is a BasicLineItem instance."""
+        return cls(name=Name(basic_line_item.name), global_id=basic_line_item.global_id)

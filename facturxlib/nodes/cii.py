@@ -6,7 +6,6 @@ class decorator for node-rendering.
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 
-
 DO_NOT_RENDER_ON_EMPTY_VALUE = "_do_not_render_on_empty_value"
 
 

@@ -1,10 +1,6 @@
 from dataclasses import dataclass
 
-from facturxlib.nodes.common import (
-    cii_node,
-    BilledQuantity,
-)
-
+from facturxlib.nodes.cii import cii_node
 
 from .agreement import SpecifiedLineTradeAgreement
 from .delivery import SpecifiedLineTradeDelivery
@@ -29,14 +25,12 @@ class IncludedSupplyChainTradeLineItem:
     specified_line_trade_settlement: SpecifiedLineTradeSettlement
 
     @classmethod
-    def from_basic_profile(cls, line):
-        """line is a `supplychain.PureLineItem` instance."""
+    def from_basic_line_item(cls, basic_line_item):
+        """line is a BasicLineItem instance."""
         return cls(
-            associated_document_line_document=AssociatedDocumentLineDocument.from_basic_profile(line),
-            specified_trade_product=SpecifiedTradeProduct.from_basic_profile(line),
-            specified_line_trade_agreement=SpecifiedLineTradeAgreement.from_basic_profile(line),
-            specified_line_trade_delivery=SpecifiedLineTradeDelivery(
-                billed_quantity=BilledQuantity(line.billed_quantity, line.unit_code)
-            ),
-            specified_line_trade_settlement=SpecifiedLineTradeSettlement.from_basic_profile(line),
+            associated_document_line_document=AssociatedDocumentLineDocument.from_basic_line_item(basic_line_item),
+            specified_trade_product=SpecifiedTradeProduct.from_basic_line_item(basic_line_item),
+            specified_line_trade_agreement=SpecifiedLineTradeAgreement.from_basic_line_item(basic_line_item),
+            specified_line_trade_delivery=SpecifiedLineTradeDelivery.from_basic_line_item(basic_line_item),
+            specified_line_trade_settlement=SpecifiedLineTradeSettlement.from_basic_line_item(basic_line_item),
         )

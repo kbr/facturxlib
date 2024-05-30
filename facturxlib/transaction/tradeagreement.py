@@ -11,14 +11,12 @@ from ..nodes.common import (
     Name,
     ValueClass,
 )
-
 from ..nodes.documents import (
     ReferencedDocumentType_1,
     ReferencedDocumentType_2,
     ReferencedDocumentType_6,
     ReferencedDocumentType_8,
 )
-
 from ..nodes.tradeparty import (
     BuyerAgentTradeParty,
     BuyerTaxRepresentativeTradeParty,

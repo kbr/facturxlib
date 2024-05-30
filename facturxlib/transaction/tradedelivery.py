@@ -5,18 +5,15 @@ ApplicableHeaderTradeDelivery related nodes.
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
-
 from ..nodes.common import (
-    cii_node,
     ActualDeliverySupplyChainEvent,
     ValueClass,
+    cii_node,
 )
-
 from ..nodes.documents import (
     ReferencedDocumentType_1,
     ReferencedDocumentType_2,
 )
-
 from ..nodes.tradeparty import (
     ShipFromTradeParty,
     ShipToTradeParty,

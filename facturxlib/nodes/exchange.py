@@ -8,17 +8,16 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 from .common import (
-    cii_node,
+    ID,
     CopyIndicator,
     DateTimeString,
-    ID,
     IncludedNote,
     Indicator,
     LanguageID,
     Name,
     TypeCode,
+    cii_node,
 )
-
 
 DEFAULT_GUIDELINE_SPECIFICATION = "urn:cen.eu:en16931:2017"
 DEFAULT_INVOICE_TYPE_CODE = "380"  # Commercial invoice

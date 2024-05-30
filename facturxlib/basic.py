@@ -6,48 +6,44 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 from .facturx import build_invoice
-
 from .nodes.common import (
-    cii_node,  # for testing
     ActualDeliverySupplyChainEvent,
     DuePayableAmount,
+    GlobalID,
     GrandTotalAmount,
     IncludedNote,
     LineTotalAmount,
     ReceivableSpecifiedTradeAccountingAccount,
     TaxBasisTotalAmount,
     TaxTotalAmount,
+    cii_node,  # for testing
 )
-
-from .nodes.tradeparty import (
-    BuyerTradeParty,
-    SellerTradeParty,
-    ShipToTradeParty,
-)
-
 from .nodes.exchange import (
     DEFAULT_GUIDELINE_SPECIFICATION,
     DEFAULT_INVOICE_TYPE_CODE,
     ExchangedDocument,
     ExchangedDocumentContext,
 )
-
+from .nodes.tradeparty import (
+    BuyerTradeParty,
+    SellerTradeParty,
+    ShipToTradeParty,
+)
 from .transaction.supplychain import SupplyChainTradeTransAction
 from .transaction.tradeagreement import (
     ApplicableHeaderTradeAgreement,
-    BuyerReference,
     BuyerOrderReferencedDocument,
+    BuyerReference,
     ContractReferencedDocument,
 )
-
 from .transaction.tradedelivery import (
     ApplicableHeaderTradeDelivery,
     DespatchAdviceReferencedDocument,
 )
-
+from .transaction.tradeline import IncludedSupplyChainTradeLineItem
 from .transaction.tradesettlement import (
-    ApplicableTradeTax,
     ApplicableHeaderTradeSettlement,
+    ApplicableTradeTax,
     BillingSpecifiedPeriod,
     InvoiceCurrencyCode,
     InvoiceReferencedDocument,
@@ -57,8 +53,10 @@ from .transaction.tradesettlement import (
     SpecifiedTradeSettlementPaymentMeans,
 )
 
-
 DEFAULT_INVOICE_CURRENCY = "EUR"
+DEFAULT_QUANTITY_UNIT_CODE = "H87"  # code for an item
+DEFAULT_TAX_CATEGORY_CODE = "S"
+DEFAULT_TAX_TYPE_CODE = "VAT"
 
 
 @cii_node("ram")
@@ -110,6 +108,48 @@ class BasicTradeParty:
     identifier: str = ""
 
 
+@dataclass
+class BasicLineItem:
+    """
+    Dataset for a line item according to the BASIC profile.
+
+    required:
+    `line_id`: aka. position number. First item starts with 1.
+    `name`: Name of the item (free text)
+    `charge_amount`: net price of a single item
+    `billed_quantity`: number of items billed
+    `line_total_amount`: net price of all items (charge_amount * billed_quantity)
+
+    required by BASIC profile and preset with default values:
+    `type_code`: tax type code, defaults to "VAT"
+    `category_code`: tax category code, defaults to "S" (standard rate)
+
+    optional:
+    `billed_quantity_unit_code`: billed item quantiy unitcode as string, defaults to Item.
+    `basis_quantity`: item base quantity as string
+    `basis_quantity_unit_code`: item quantiy unitcode as string, defaults to Item.
+    `global_id`: a GlobalID instance
+    `specified_trade_allowance_charges`: a sequence of SpecifiedTradeAllowanceCharge instances
+
+    """
+
+    line_id: str
+    name: str
+    charge_amount: str
+    billed_quantity: str
+    line_total_amount: str
+
+    billed_quantity_unit_code: str = DEFAULT_QUANTITY_UNIT_CODE
+    rate_applicable_percent: Optional[str] = None
+    basis_quantity: Optional[str] = None
+    basis_quantity_unit_code: str = DEFAULT_QUANTITY_UNIT_CODE
+    type_code: str = DEFAULT_TAX_TYPE_CODE
+    category_code: str = DEFAULT_TAX_CATEGORY_CODE
+
+    global_id: Optional[GlobalID] = None
+    specified_trade_allowance_charges: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
+
+
 def build_basic_invoice(
     invoice_id: str,
     invoice_issue_date: str,
@@ -121,6 +161,7 @@ def build_basic_invoice(
     tax_total_amounts: Sequence[TaxTotalAmount],
     grand_total_amount: GrandTotalAmount,
     due_payable_amount: str,
+    basic_line_items: Optional[Sequence[BasicLineItem]] = field(default_factory=list),
     delivery_occurence_date: Optional[str] = None,
     invoice_currency_code: str = DEFAULT_INVOICE_CURRENCY,
     invoice_type_code: str = DEFAULT_INVOICE_TYPE_CODE,
@@ -167,7 +208,9 @@ def build_basic_invoice(
     required/optional:
     `delivery_occurence_date`: this value (as "CCYYMMDD") is optional
             but mandatory in Germany. It can be given here or on line
-            level. If it is given here, the value will override an
+            level. But the VAT relevant date of delivery and achievement
+            must be specified on the level of document (that means
+            here). If it is given here, the value will override an
             optional `delivery_actual_delivery_supply_chain_event`
             argument.
     `invoice_currency`: required and preset with "EUR" as default.
@@ -177,6 +220,8 @@ def build_basic_invoice(
     `document_guideline_specifikation`: defaults to "urn:cen.eu:en16931:2017"
 
     optional:
+    `basic_line_items`: Sequence of BasicLineItems. This is optional by definition,
+            even if an invoice makes rarely sense without line-items.
     `document_included_notes`: included notes on document level
     `document_business_process_id`: if given may allowing the buyer to
             process the invoice in an appropriate manner.
@@ -250,11 +295,16 @@ def build_basic_invoice(
         receivable_specified_trade_accounting_accounts=receivable_specified_trade_accounting_accounts,
     )
 
+    basic_line_items = basic_line_items if basic_line_items else []
+    included_supply_chain_trade_line_items = [
+        IncludedSupplyChainTradeLineItem.from_basic_line_item(basic_line_item) for basic_line_item in basic_line_items
+    ]
+
     supply_chain_trade_transaction = SupplyChainTradeTransAction(
         applicable_header_trade_agreement=applicable_header_trade_agreement,
         applicable_header_trade_delivery=applicable_header_trade_delivery,
         applicable_header_trade_settlement=applicable_header_trade_settlement,
-        line_items=[],
+        included_supply_chain_trade_line_items=included_supply_chain_trade_line_items,
     )
 
     return build_invoice(
