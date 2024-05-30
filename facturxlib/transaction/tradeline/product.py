@@ -211,4 +211,7 @@ class SpecifiedTradeProduct:
     @classmethod
     def from_basic_line_item(cls, basic_line_item):
         """line is a BasicLineItem instance."""
-        return cls(name=Name(basic_line_item.name), global_id=basic_line_item.global_id)
+        return cls(
+            name=Name(basic_line_item.name),
+            global_id=GlobalID(value=basic_line_item.global_id, scheme_id=basic_line_item.global_id_scheme_id),
+        )

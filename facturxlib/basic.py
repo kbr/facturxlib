@@ -9,7 +9,6 @@ from .facturx import build_invoice
 from .nodes.common import (
     ActualDeliverySupplyChainEvent,
     DuePayableAmount,
-    GlobalID,
     GrandTotalAmount,
     IncludedNote,
     LineTotalAmount,
@@ -28,6 +27,7 @@ from .nodes.tradeparty import (
     BuyerTradeParty,
     SellerTradeParty,
     ShipToTradeParty,
+    SellerTaxRepresentativeTradeParty,
 )
 from .transaction.supplychain import SupplyChainTradeTransAction
 from .transaction.tradeagreement import (
@@ -128,7 +128,8 @@ class BasicLineItem:
     `billed_quantity_unit_code`: billed item quantiy unitcode as string, defaults to Item.
     `basis_quantity`: item base quantity as string
     `basis_quantity_unit_code`: item quantiy unitcode as string, defaults to Item.
-    `global_id`: a GlobalID instance
+    `global_id`: The identification of articles based on a registered scheme
+    `global_id_scheme_id`: the according scheme, required if a global_id is given.
     `specified_trade_allowance_charges`: a sequence of SpecifiedTradeAllowanceCharge instances
 
     """
@@ -146,7 +147,8 @@ class BasicLineItem:
     type_code: str = DEFAULT_TAX_TYPE_CODE
     category_code: str = DEFAULT_TAX_CATEGORY_CODE
 
-    global_id: Optional[GlobalID] = None
+    global_id: Optional[str] = None
+    global_id_scheme_id: Optional[str] = None
     specified_trade_allowance_charges: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
 
 
@@ -171,6 +173,7 @@ def build_basic_invoice(
     agreement_buyer_reference: Optional[BuyerReference] = None,
     agreement_buyer_order_referenced_document: Optional[BuyerOrderReferencedDocument] = None,
     agreement_contract_referenced_document: Optional[ContractReferencedDocument] = None,
+    agreement_seller_tax_representative_trade_party: Optional[SellerTaxRepresentativeTradeParty] = None,
     delivery_ship_to_trade_party: Optional[ShipToTradeParty] = None,
     delivery_actual_delivery_supply_chain_event: Optional[ActualDeliverySupplyChainEvent] = None,
     delivery_despatch_advice_referenced_document: Optional[DespatchAdviceReferencedDocument] = None,
@@ -231,6 +234,8 @@ def build_basic_invoice(
             a BuyerOrderReferencedDocument instance with details of the associated order
     `agreement_contract_referenced_document`:
             a ContractReferencedDocument instance with details of the associated contract
+    `agreement_seller_tax_representative_trade_party`:
+            the seller’s tax representative.
     `delivery_ship_to_trade_party`:
             Detailed information on the deviating goods recipient
     `delivery_actual_delivery_supply_chain_event`:
@@ -252,6 +257,7 @@ def build_basic_invoice(
     exchanged_document_context = ExchangedDocumentContext.from_basic_profile(
         specification_identifier=document_guideline_specification, business_process_id=document_business_process_id
     )
+
     exchanged_document = ExchangedDocument.from_basic_profile(
         invoice_id=invoice_id,
         issue_date_time=invoice_issue_date,
@@ -262,6 +268,7 @@ def build_basic_invoice(
     applicable_header_trade_agreement = ApplicableHeaderTradeAgreement(
         buyer=BuyerTradeParty.from_basic_trade_party(buyer),
         seller=SellerTradeParty.from_basic_trade_party(seller),
+        seller_tax_representative_trade_party=agreement_seller_tax_representative_trade_party,
         buyer_reference=agreement_buyer_reference,
         buyer_order_referenced_document=agreement_buyer_order_referenced_document,
         contract_referenced_document=agreement_contract_referenced_document,

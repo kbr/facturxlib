@@ -120,7 +120,7 @@ class ApplicableHeaderTradeAgreement:
     `buyer_reference`: Buyer reference (provided from the buyer)
     `sales_agent_trade_party`: The sales agent
     `buyer_tax_reprensentative_trade_party`: Buyer tax representative party
-    `seller_tax_reprensentative_trade_party`: Seller tax representative party
+    `seller_tax_representative_trade_party`: Seller tax representative party
     `product_end_user_trade_party`: Detailed information about the deviating end user
     `applicable_trade_delivery_terms`: Details of the delivery conditions
     `seller_order_referenced_document`: Details about the associated order confirmation
@@ -137,7 +137,7 @@ class ApplicableHeaderTradeAgreement:
     buyer_reference: Optional[BuyerReference] = None
     sales_agent_trade_party: Optional[SalesAgentTradeParty] = None
     buyer_tax_reprensentative_trade_party: Optional[BuyerTaxRepresentativeTradeParty] = None
-    seller_tax_reprensentative_trade_party: Optional[SellerTaxRepresentativeTradeParty] = None
+    seller_tax_representative_trade_party: Optional[SellerTaxRepresentativeTradeParty] = None
     product_end_user_trade_party: Optional[ProductEndUserTradeParty] = None
     applicable_trade_delivery_terms: Optional[ApplicableTradeDeliveryTerms] = None
     seller_order_referenced_document: Optional[SellerOrderReferencedDocument] = None
