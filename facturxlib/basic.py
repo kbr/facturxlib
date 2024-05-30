@@ -15,7 +15,6 @@ from .nodes.common import (
     ReceivableSpecifiedTradeAccountingAccount,
     TaxBasisTotalAmount,
     TaxTotalAmount,
-    cii_node,  # for testing
 )
 from .nodes.exchange import (
     DEFAULT_GUIDELINE_SPECIFICATION,
@@ -57,12 +56,6 @@ DEFAULT_INVOICE_CURRENCY = "EUR"
 DEFAULT_QUANTITY_UNIT_CODE = "H87"  # code for an item
 DEFAULT_TAX_CATEGORY_CODE = "S"
 DEFAULT_TAX_TYPE_CODE = "VAT"
-
-
-@cii_node("ram")
-class MockNode:
-    # for development
-    pass
 
 
 @dataclass
