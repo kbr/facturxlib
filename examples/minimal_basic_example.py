@@ -1,5 +1,5 @@
 """
-test_pure_basic.py
+minimal_basic_example.py
 
 Example file for the BASIC profile with the required nodes.
 
@@ -70,7 +70,7 @@ def run_minimal_basic_example():
 
     # build the invoice by providing the above defined data
     # and the
-    result = build_pure_basic_invoice(
+    result = build_minimal_basic_invoice(
         invoice_id=invoice_id,
         invoice_issue_date=invoice_issue_date,
         delivery_occurence_date=delivery_occurence_date,
@@ -83,7 +83,7 @@ def run_minimal_basic_example():
         grand_total_amount="319.00"
     )
 
-    print(f"\n{result}\n")
+    print(result)
 
 
 if __name__ == "__main__":

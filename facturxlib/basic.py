@@ -326,7 +326,7 @@ def build_basic_invoice(
     )
 
 
-def build_pure_basic_invoice(
+def build_minimal_basic_invoice(
     invoice_id: str,
     invoice_issue_date: str,
     buyer: BasicTradeParty,
