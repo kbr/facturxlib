@@ -144,6 +144,18 @@ class BasicLineItem:
     global_id_scheme_id: Optional[str] = None
     specified_trade_allowance_charges: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
 
+    @classmethod
+    def from_minimal_data(cls, line_id: str, name: str, net_price: str):
+        """
+        Constructor based on minimal data. `charge_amount` and
+        `line_total_amount` are set the the `net_price` and the
+        `billed_quantity` is fixed to 1.
+        All other data are set to the default values.
+        """
+        return cls(
+            line_id=line_id, name=name, charge_amount=net_price, line_total_amount=net_price, billed_quantity="1"
+        )
+
 
 def build_basic_invoice(
     invoice_id: str,
@@ -311,4 +323,105 @@ def build_basic_invoice(
         exchanged_document_context=exchanged_document_context,
         exchanged_document=exchanged_document,
         supply_chain_trade_transaction=supply_chain_trade_transaction,
+    )
+
+
+def build_pure_basic_invoice(
+    invoice_id: str,
+    invoice_issue_date: str,
+    buyer: BasicTradeParty,
+    seller: BasicTradeParty,
+    line_total_amount: str,
+    rate_applicable_percent: str,
+    tax_total_amount: str,
+    grand_total_amount: str,
+    basic_line_items: Optional[Sequence[BasicLineItem]] = field(default_factory=list),
+    delivery_occurence_date: Optional[str] = None,
+    buyer_reference: Optional[str] = None,
+    due_payable_amount: str = "",
+    tax_basis_total_amount: str = "",
+    tax_category_code: str = DEFAULT_TAX_CATEGORY_CODE,
+    tax_type_code: str = DEFAULT_TAX_TYPE_CODE,
+    invoice_currency_code: str = DEFAULT_INVOICE_CURRENCY,
+    invoice_type_code: str = DEFAULT_INVOICE_TYPE_CODE,
+):
+    """
+    Simplified version of `build_basic_invoice`. It makes the assumption
+    that for all amounts the `invoice_currency_code` is used and that
+    for all traded items there is just a single tax-rate given by
+    `rate_applicable_percent`.
+    Also there is just a seller- and a buyer-tradeparty involved and
+    there are no attached documents.
+
+    required:
+    `invoice_id`: number of the invoice like "123" or "123/2024"
+    `invoice_issue_date`: date formatted as "CCYYMMDD"
+    `buyer`: buyer information as BasicTradeParty
+    `seller`: seller information as BasicTradeParty
+    `line_total_amount`: Invoice net total
+    `rate_applicable_percent`: the invoice tax rate in percent, like "19.00".
+    `tax_total_amount`: The total of the taxes.
+    `grand_total_amount`: the total of the invoice including taxes.
+
+    optional but mandatory in Germany:
+    `delivery_occurence_date`: this value (as "CCYYMMDD") is optional
+            but mandatory in Germany. It can be given here or on line
+            level. But the VAT relevant date of delivery and achievement
+            must be specified on the level of document (that means
+            here). If it is given here, the value will override an
+            optional `delivery_actual_delivery_supply_chain_event`
+            argument.
+
+    optional:
+    `basic_line_items`: Sequence of BasicLineItems. This is optional by definition,
+            even if an invoice makes rarely sense without line-items.
+    `buyer_reference`: an id assigned by the buyer (like SAP number)
+    `due_payable_amount`: the amount due for payment as string (like "0.00").
+            If not given the value is taken from `grand_total_amount`.
+    `tax_basis_total_amount`: total amount to apply taxes on (total net price).
+            If not given the value is taken from `line_total_amount`
+            which is the invoice net price.
+    `tax_category_code`: defaults to "S" (standard rate)
+    `tax_type_code`: defaults to "VAT" (fixed value)
+    `invoice_currency`: required and preset with "EUR" as default.
+    `invoice_type_code`: defaults to commercial invoice ("380")
+    """
+
+    applicable_trade_taxes = [
+        ApplicableTradeTax.from_basic_profile(
+            basis_amount=tax_basis_total_amount,
+            rate_applicable_percent=rate_applicable_percent,
+            calculated_amount=tax_total_amount,
+            category_code=tax_category_code,
+            type_code=tax_type_code,
+        )
+    ]
+
+    tax_totals = [TaxTotalAmount(value=tax_total_amount, currency_id=invoice_currency_code)]
+    grand_total = GrandTotalAmount(value=grand_total_amount, currency_id=invoice_currency_code)
+
+    the_buyer_reference = BuyerReference(buyer_reference) if buyer_reference else None
+
+    tax_basis_value = tax_basis_total_amount if tax_basis_total_amount else line_total_amount
+    tax_basis_total = TaxBasisTotalAmount(value=tax_basis_value, currency_id=invoice_currency_code)
+
+    if not due_payable_amount:
+        due_payable_amount = grand_total_amount
+
+    return build_basic_invoice(
+        invoice_id=invoice_id,
+        invoice_issue_date=invoice_issue_date,
+        buyer=buyer,
+        seller=seller,
+        applicable_trade_taxes=applicable_trade_taxes,
+        line_total_amount=line_total_amount,
+        tax_basis_total_amount=tax_basis_total,
+        tax_total_amounts=tax_totals,
+        grand_total_amount=grand_total,
+        due_payable_amount=due_payable_amount,
+        basic_line_items=basic_line_items,
+        delivery_occurence_date=delivery_occurence_date,
+        agreement_buyer_reference=the_buyer_reference,
+        invoice_currency_code=invoice_currency_code,
+        invoice_type_code=invoice_type_code,
     )
