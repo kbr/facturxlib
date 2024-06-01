@@ -51,7 +51,7 @@ class SchemeClass(ValueClass):
             self._node_attributes = {"schemeID": scheme_id}
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CompleteNumber(ValueClass):
     """
     Contact phone number.
@@ -91,7 +91,7 @@ class ActualDeliverySupplyChainEvent:
         self._sub_element = OccurrenceDateTime(occurence_date)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ActualAmount(ValueClass):
     """
     Actual amount of calculations.
@@ -99,12 +99,12 @@ class ActualAmount(ValueClass):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class AllowanceTotalAmount(ValueClass):
     """Total amount of discounts."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class AttachmentBinaryObject:
     """
     Attached document.
@@ -125,12 +125,12 @@ class AttachmentBinaryObject:
         self._node_attributes = {"mimeCode": mime_code, "filename": filename}
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BasisAmount(ValueClass):
     """base amount (for further calculations)."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BasisPeriodMeasure(QuantityClass):
     """
     Quantity class with optional unitCode and different meaning
@@ -141,37 +141,37 @@ class BasisPeriodMeasure(QuantityClass):
         super().__init__(value, unit_code)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BasisQuantity(QuantityClass):
     """Represents an udt:Item Base Quantity with required Unit Code"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BilledQuantity(QuantityClass):
     """Represents an udt:Item Billed Quantity with required Unit Code"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CalculatedAmount(ValueClass):
     """Calculated tax related amount."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CalculationPercent(ValueClass):
     """Discount / Charge in percent"""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class CategoryCode(ValueClass):
     """Coded indication of a sales tax category."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ChargeAmount(ValueClass):
     """Item net price."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ChargeIndicator:
     """
     Represents a boolean Indicator.
@@ -182,27 +182,27 @@ class ChargeIndicator:
         self._sub_element = Indicator(value)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ChargeTotalAmount(ValueClass):
     """Sum of all surcharges on document level in the invoice."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CityName(ValueClass):
     """City for the postcode (zip)."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class Content(ValueClass):
     """Freetext on document level (Content)"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ContentCode(ValueClass):
     """Free text on header level (qualifying the content)"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CopyIndicator:
     """
     Represents a boolean Indicator.
@@ -213,41 +213,41 @@ class CopyIndicator:
         self._sub_element = Indicator(value)
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class CountryID(ValueClass):
     """Country code (like "DE")."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CountrySubDivisionName(ValueClass):
     """Country sub division."""
 
 
-@cii_node()
+@cii_node("udt")
 class DateTimeString(ValueClass):
     """Represents a DateString formatted as 'CCYYMMDD'."""
 
     _node_attributes = {"format": "102"}  # fixed code for CCYYMMDD
 
 
-@cii_node("udt")
+@cii_node("ram")
 class DepartmentName(ValueClass):
     """Department Name (of contact person)."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class Description(ValueClass):
     """
     Description as text for a node that needs further description.
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class DuePayableAmount(ValueClass):
     """Amount due for payment."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class EndDateTime:
     """End time of a period formatted as 'CCYYMMDD'."""
 
@@ -255,12 +255,12 @@ class EndDateTime:
         self._sub_element = DateTimeString(value)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ExemptionReason(ValueClass):
     """VAT exemption reason (free text)."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ExemptionReasonCode(ValueClass):
     """Reason for the exemption of VAT provided in code."""
 
@@ -270,7 +270,7 @@ class FaxUniversalCommunication(UniversalCommunication):
     """Details about the contact fax number."""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class FormattedIssueDateTime:
     """Order confirmation date"""
 
@@ -278,7 +278,7 @@ class FormattedIssueDateTime:
         self._sub_element = DateTimeString(value)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class GlobalID(SchemeClass):
     """
     For GlobalIDs with a schemeID
@@ -287,7 +287,7 @@ class GlobalID(SchemeClass):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class GrandTotalAmount(BaseTotalAmount):
     """
     Invoice total amount with VAT.
@@ -296,12 +296,12 @@ class GrandTotalAmount(BaseTotalAmount):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ID(SchemeClass):
     """For IDs with an optional schemeID"""
 
 
-@cii_node()
+@cii_node("udt")
 class Indicator(ValueClass):
     """
     Represents an Indicator tag (xs:boolean).
@@ -309,27 +309,27 @@ class Indicator(ValueClass):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class IssuerAssignedID(SchemeClass):
     """Context dependent identifier."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LanguageID(ValueClass):
     """Language identifier"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LineID(ValueClass):
     """Line number"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LineOne(ValueClass):
     """address line one."""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class LineStatusCode(ValueClass):
     """
     Indicating whether an item includes the prices which must be taken
@@ -338,7 +338,7 @@ class LineStatusCode(ValueClass):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LineStatusReasonCode(ValueClass):
     """
     Complements the type to clarify whether the invoice item is one of
@@ -354,27 +354,27 @@ class LineStatusReasonCode(ValueClass):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LineTwo(ValueClass):
     """address line two."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LineThree(ValueClass):
     """address line three."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LineTotalAmount(ValueClass):
     """Sum of invoice line total amount."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class Name(ValueClass):
     """The full formal name of an entity."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class OccurrenceDateTime:
     """Contractual due date of the invoice"""
 
@@ -382,34 +382,34 @@ class OccurrenceDateTime:
         self._sub_element = DateTimeString(value)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ParentLineID(ValueClass):
     """Parent Line ID. Seems to be optional even for EXTENDED"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class PersonName(ValueClass):
     """Contact Name."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class PostcodeCode(ValueClass):
     """The postcode (zip) of an address."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class RateApplicablePercent(ValueClass):
     """Percent Value like 19.00 for 19%"""
 
     _do_not_render_on_empty_value = True
 
 
-@cii_node("udt")
+@cii_node("ram")
 class Reason(ValueClass):
     """Reason for the charge/discount (free text)"""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class ReasonCode(ValueClass):
     """
     Reason for allowance or charge (Code).
@@ -418,12 +418,12 @@ class ReasonCode(ValueClass):
     """
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class ReferenceTypeCode(ValueClass):
     """Reference codes or schemes depending on the context."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class RoundingAmount(ValueClass):
     """
     The amount to be added to the invoice total to round the amount to
@@ -445,7 +445,7 @@ class SpecifiedTaxRegistration:
         self._sub_element = ID(value, scheme_id)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class StartDateTime:
     """Start time of a period formatted as 'CCYYMMDD'."""
 
@@ -453,12 +453,12 @@ class StartDateTime:
         self._sub_element = DateTimeString(value)
 
 
-@cii_node("udt")
+@cii_node("ram")
 class SubjectCode(ValueClass):
     """Code for qualifying the free text for the invoice"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class TaxBasisTotalAmount(BaseTotalAmount):
     """
     The total amount of the invoice without VAT.
@@ -468,7 +468,7 @@ class TaxBasisTotalAmount(BaseTotalAmount):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class TaxTotalAmount(BaseTotalAmount):
     """
     Invoice total VAT amount.
@@ -481,22 +481,22 @@ class TelephoneUniversalCommunication(UniversalCommunication):
     """Details about the contact phone number."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class TotalPrepaidAmount(ValueClass):
     """Paid amount."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class TradingBusinessName(ValueClass):
     """Trading Business Name."""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class TypeCode(ValueClass):
     """Represents a CodeType."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class URIID(ValueClass):
     """Node for a URI-ID."""
 

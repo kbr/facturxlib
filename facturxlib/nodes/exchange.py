@@ -24,7 +24,7 @@ DEFAULT_INVOICE_TYPE_CODE = "380"  # Commercial invoice
 
 
 @dataclass
-@cii_node("udt")
+@cii_node("ram")
 class IssueDateTime:
     """
     Invoice date
@@ -37,7 +37,7 @@ class IssueDateTime:
 
 
 @dataclass
-@cii_node("udt")
+@cii_node("ram")
 class CompleteDateTime:
     """
     Contractual due date of the invoice
@@ -97,7 +97,7 @@ class GuidelineSpecifiedDocumentContextParameter:
 
 
 @dataclass
-@cii_node("udt")
+@cii_node("ram")
 class TestIndicator:
     """
     Test indicator. The Indicator type may be used when implementing a
@@ -111,7 +111,7 @@ class TestIndicator:
 
 
 @dataclass
-@cii_node("ram")
+@cii_node("rsm")
 class ExchangedDocumentContext:
     """
     An aggregation of business terms containing information about the
@@ -161,7 +161,7 @@ class ExchangedDocumentContext:
 
 
 @dataclass
-@cii_node("ram")
+@cii_node("rsm")
 class ExchangedDocument:
     """
     Grouping of characteristics that affect the entire document.

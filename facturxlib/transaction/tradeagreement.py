@@ -35,7 +35,7 @@ class AdditionalReferencedDocument(ReferencedDocumentType_8):
     """
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class DeliveryTypeCode(ValueClass):
     """Delivery condition (Code)"""
 
@@ -60,7 +60,7 @@ class BuyerOrderReferencedDocument(ReferencedDocumentType_2):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BuyerReference(ValueClass):
     """
     An identifier assigned by the buyer used for internal routing purposes.
@@ -88,7 +88,7 @@ class SellerOrderReferencedDocument(ReferencedDocumentType_2):
 
 @dataclass
 @cii_node("ram")
-class SpecifiedPouringProject:
+class SpecifiedProcuringProject:
     """
     Details about a project reference
 
@@ -146,7 +146,7 @@ class ApplicableHeaderTradeAgreement:
     contract_referenced_document: Optional[ContractReferencedDocument] = None
     additional_referenced_documents: Optional[Sequence[AdditionalReferencedDocument]] = field(default_factory=list)
     buyer_agent_trade_party: Optional[BuyerAgentTradeParty] = None
-    specified_procuring_project: Optional[SpecifiedPouringProject] = None
+    specified_procuring_project: Optional[SpecifiedProcuringProject] = None
     ultimate_customer_order_referended_documents: Optional[Sequence[UltimateCustomerOrderReferencedDocument]] = field(
         default_factory=list
     )

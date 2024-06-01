@@ -50,33 +50,33 @@ from ..nodes.tradeparty import (
 DEFAULT_ZERO = "0.00"
 
 
-@cii_node("udt")
+@cii_node("ram")
 class AccountName(ValueClass):
     """Payment account name."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ActualDiscountAmount(ValueClass):
     """Payment discount amount."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ActualPenaltyAmount(ValueClass):
     """Payment penalty amount."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class AllowanceChargeBasisAmount(ValueClass):
     """Total amount of charges / allowances on document level"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class AppliedAmount(ValueClass):
     """Service fee amount"""
 
 
 @dataclass
-@cii_node("udt")
+@cii_node("ram")
 class BasisDateTime:
     """
     Maturity Reference Date.
@@ -88,17 +88,17 @@ class BasisDateTime:
     date_time_string: DateTimeString
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BICID(ValueClass):
     """Payment service provider identifier."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ConversionRate(ValueClass):
     """Bank assigned creditor identifier."""
 
 
-@cii_node("xs")
+@cii_node("udt")
 class DateTime(ValueClass):
     """
     Unocumented. Used in `ConversionRateDateTime` aside to the
@@ -107,13 +107,13 @@ class DateTime(ValueClass):
     """
 
 
-@cii_node()
+@cii_node("udt")
 class DateString(DateTimeString):
     """Tax due date, Value"""
 
 
 @dataclass
-@cii_node("udt")
+@cii_node("ram")
 class ConversionRateDateTime:
     """
     Exchange rate date.
@@ -127,23 +127,23 @@ class ConversionRateDateTime:
     date_time: DateTime
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CardholderName(ValueClass):
     """The name of the payment card holder."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class CreditorReferenceID(ValueClass):
     """Bank assigned creditor identifier."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class DirectDebitMandateID(ValueClass):
     """Mandate reference for SEPA payment."""
 
 
 @dataclass
-@cii_node("udt")
+@cii_node("ram")
 class DueDateDateTime:
     """
     Payment due date.
@@ -155,13 +155,13 @@ class DueDateDateTime:
     date_time_string: DateTimeString
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class DueDateTypeCode(ValueClass):
     """Tax due date, code."""
 
 
 @dataclass
-@cii_node("qdt")
+@cii_node("ram")
 class FormattedReceivedDateTime:
     """
     Date of advanced payment.
@@ -173,22 +173,22 @@ class FormattedReceivedDateTime:
     date_time_string: DateTimeString
 
 
-@cii_node("udt")
+@cii_node("ram")
 class IBANID(ValueClass):
     """Direct debit: Debited account identifier"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class Information(ValueClass):
     """Payment means text"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class InvoiceIssuerReference(ValueClass):
     """Remittance Seller reference number."""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class InvoiceCurrencyCode(ValueClass):
     """represents a tag specifying a currency code like "EUR"."""
 
@@ -198,32 +198,32 @@ class InvoiceReferencedDocument(ReferencedDocumentType_4):
     """Preceding Invoice Reference"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class LineTotalBasisAmount(ValueClass):
     """Goods value of the tax rate."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class PaidAmount(ValueClass):
     """Advanced payment, value."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class PartialPaymentAmount(ValueClass):
     """Partial payment amount."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class PaymentReference(ValueClass):
     """Remittance information."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ProprietaryID(ValueClass):
     """National account number (not SEPA)."""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class SequenceNumeric(ValueClass):
     """
     Calculation sequence. Note: Up to level COMFORT only the final
@@ -231,17 +231,17 @@ class SequenceNumeric(ValueClass):
     """
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class SourceCurrencyCode(ValueClass):
     """Invoice currency"""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class TargetCurrencyCode(ValueClass):
     """Local currency"""
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class TaxCurrencyCode(ValueClass):
     """VAT accounting currency code"""
 
@@ -268,7 +268,7 @@ class TaxApplicableTradeCurrencyExchange:
 
 
 @dataclass
-@cii_node("udt")
+@cii_node("ram")
 class TaxPointDate:
     """
     The date when the VAT becomes accountable for the seller and for the
@@ -442,7 +442,7 @@ class ApplicableTradeTax:
     required:
     `calculated_amount`: the applied tax
     `type_code`: VAT type code (fixed value = "VAT")
-    `basis_amount`: (aka net price)
+    `basis_amount`: (net price after allowances and charges)
     `category_code`: Coded indication of a sales tax category
             (i.e. "S" for standard rate or "AE" for VAT reverse charge)
 
@@ -692,6 +692,26 @@ class SpecifiedTradePaymentTerms:
     applicable_trade_payment_penalty_terms: Optional[ApplicableTradePaymentPenaltyTerms] = None
     applicable_trade_payment_discount_terms: Optional[ApplicableTradePaymentDiscountTerms] = None
     payee_trade_partys: Optional[Sequence[PayeeTradeParty]] = field(default_factory=list)
+
+    @classmethod
+    def from_basic_data(cls, description:str="", due_date:str=""):
+        """
+        Convenience constructor from most basic data.
+        """
+        if description:
+            description_instance = Description(description)
+        else:
+            description_instance = None
+        if due_date:
+            due_date_date_time=DueDateDateTime(date_time_string=DateTimeString(value=due_date))
+        else:
+            due_date_date_time = None
+
+        return cls(
+            description=description_instance,
+            due_date_date_time=due_date_date_time
+        )
+
 
 
 @dataclass

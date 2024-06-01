@@ -35,7 +35,7 @@ class DespatchAdviceReferencedDocument(ReferencedDocumentType_1):
     """
 
 
-@cii_node("qdt")
+@cii_node("ram")
 class ModeCode(ValueClass):
     """Delivery method (Code)"""
 

@@ -103,8 +103,13 @@ class ApplicableTradeTax:
     @classmethod
     def from_basic_line_item(cls, basic_line_item):
         """basic_line_item is a BasicLineItem instannce."""
+        if basic_line_item.rate_applicable_percent:
+            rate_applicable_percent = RateApplicablePercent(basic_line_item.rate_applicable_percent)
+        else:
+            rate_applicable_percent = None
         return cls(
-            category_code=CategoryCode(basic_line_item.category_code), type_code=TypeCode(basic_line_item.type_code)
+            category_code=CategoryCode(basic_line_item.category_code), type_code=TypeCode(basic_line_item.type_code),
+            rate_applicable_percent=rate_applicable_percent
         )
 
 

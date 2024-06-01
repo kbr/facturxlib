@@ -18,27 +18,27 @@ from facturxlib.nodes.common import (
 )
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BuyerAssignedID(ValueClass):
     """Buyer item number"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class SellerAssignedID(ValueClass):
     """Seller item number"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class IndustryAssignedID(ValueClass):
     """Industry item number"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class Value(ValueClass):
     """Item Attribute Value"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class UnitQuantity(QuantityClass):
     """
     Included amount with an optional
@@ -46,7 +46,7 @@ class UnitQuantity(QuantityClass):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ValueMeasure(QuantityClass):
     """
     Item Attribute Value (numerical measurand) with an optional
@@ -77,7 +77,7 @@ class ApplicableProductCharacteristic:
     value_measure: Optional[ValueMeasure] = None
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ClassCode(ValueClass):
     """
     A code for the classification of an item according to type or kind or nature.
@@ -91,7 +91,7 @@ class ClassCode(ValueClass):
         }
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ClassName(ValueClass):
     """Classification name"""
 
@@ -112,12 +112,12 @@ class DesignatedProductClassification:
     class_name: Optional[ClassName] = None
 
 
-@cii_node("udt")
+@cii_node("ram")
 class BatchID(ValueClass):
     """batch id"""
 
 
-@cii_node("udt")
+@cii_node("ram")
 class SupplierAssignedSerialID(ValueClass):
     """supplier assigned serial id"""
 

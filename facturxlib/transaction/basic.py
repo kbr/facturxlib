@@ -21,7 +21,7 @@ from ..nodes.common import (
     TotalPrepaidAmount,
     TypeCode,
 )
-from .supplychain import SupplyChainTradeTransAction
+from .supplychain import SupplyChainTradeTransaction
 from .tradeagreement import (
     ApplicableHeaderTradeAgreement,
     BuyerTradeParty,
@@ -136,7 +136,7 @@ class PureBasicTradeTax:
 @dataclass
 class PureBasicTransAction:
     """
-    Builds the complex SupplyChainTradeTransAction instance. Required
+    Builds the complex SupplyChainTradeTransaction instance. Required
     arguments are for the nodes of the BASIC profile with a cardinality
     of at least 1. With the optional `lines` argument basic invoices
     can get created.
@@ -268,7 +268,7 @@ class PureBasicTransAction:
             specified_trade_settlement_header_monetary_summation=monetary_summation,
         )
 
-        return SupplyChainTradeTransAction(
+        return SupplyChainTradeTransaction(
             line_items=line_items,
             applicable_header_trade_agreement=applicable_header_trade_agreement,
             applicable_header_trade_delivery=applicable_header_trade_delivery,

@@ -40,7 +40,7 @@ class DeliveryNoteReferencedDocument(ReferencedDocumentType_5):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class ChargeFreeQuantity(QuantityClass):
     """
     Amount, without charge
@@ -48,7 +48,7 @@ class ChargeFreeQuantity(QuantityClass):
     """
 
 
-@cii_node("udt")
+@cii_node("ram")
 class PackageQuantity(QuantityClass):
     """
     Package quantity

@@ -2,6 +2,7 @@
 Interface for the BASIC profile.
 """
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
@@ -28,7 +29,7 @@ from .nodes.tradeparty import (
     ShipToTradeParty,
     SellerTaxRepresentativeTradeParty,
 )
-from .transaction.supplychain import SupplyChainTradeTransAction
+from .transaction.supplychain import SupplyChainTradeTransaction
 from .transaction.tradeagreement import (
     ApplicableHeaderTradeAgreement,
     BuyerOrderReferencedDocument,
@@ -110,7 +111,7 @@ class BasicLineItem:
     `line_id`: aka. position number. First item starts with 1.
     `name`: Name of the item (free text)
     `charge_amount`: net price of a single item
-    `billed_quantity`: number of items billed
+    `basis_quantity`: item base quantity as string
     `line_total_amount`: net price of all items (charge_amount * billed_quantity)
 
     required by BASIC profile and preset with default values:
@@ -118,8 +119,8 @@ class BasicLineItem:
     `category_code`: tax category code, defaults to "S" (standard rate)
 
     optional:
+    `billed_quantity`: number of items billed.
     `billed_quantity_unit_code`: billed item quantiy unitcode as string, defaults to Item.
-    `basis_quantity`: item base quantity as string
     `basis_quantity_unit_code`: item quantiy unitcode as string, defaults to Item.
     `global_id`: The identification of articles based on a registered scheme
     `global_id_scheme_id`: the according scheme, required if a global_id is given.
@@ -130,13 +131,13 @@ class BasicLineItem:
     line_id: str
     name: str
     charge_amount: str
-    billed_quantity: str
+    basis_quantity: str
     line_total_amount: str
 
+    billed_quantity: Optional[str] = None
     billed_quantity_unit_code: str = DEFAULT_QUANTITY_UNIT_CODE
-    rate_applicable_percent: Optional[str] = None
-    basis_quantity: Optional[str] = None
     basis_quantity_unit_code: str = DEFAULT_QUANTITY_UNIT_CODE
+    rate_applicable_percent: Optional[str] = None
     type_code: str = DEFAULT_TAX_TYPE_CODE
     category_code: str = DEFAULT_TAX_CATEGORY_CODE
 
@@ -147,13 +148,13 @@ class BasicLineItem:
     @classmethod
     def from_minimal_data(cls, line_id: str, name: str, net_price: str):
         """
-        Constructor based on minimal data. `charge_amount` and
+        Constructor based on minimal required data. `charge_amount` and
         `line_total_amount` are set the the `net_price` and the
         `billed_quantity` is fixed to 1.
         All other data are set to the default values.
         """
         return cls(
-            line_id=line_id, name=name, charge_amount=net_price, line_total_amount=net_price, billed_quantity="1"
+            line_id=line_id, name=name, charge_amount=net_price, line_total_amount=net_price, basis_quantity="1"
         )
 
 
@@ -307,12 +308,15 @@ def build_basic_invoice(
         receivable_specified_trade_accounting_accounts=receivable_specified_trade_accounting_accounts,
     )
 
-    basic_line_items = basic_line_items if basic_line_items else []
-    included_supply_chain_trade_line_items = [
-        IncludedSupplyChainTradeLineItem.from_basic_line_item(basic_line_item) for basic_line_item in basic_line_items
-    ]
+    line_items = basic_line_items if basic_line_items else []
+    if isinstance(line_items, Iterable):
+        included_supply_chain_trade_line_items = [
+            IncludedSupplyChainTradeLineItem.from_basic_line_item(line_item) for line_item in line_items
+        ]
+    else:
+        included_supply_chain_trade_line_items = []
 
-    supply_chain_trade_transaction = SupplyChainTradeTransAction(
+    supply_chain_trade_transaction = SupplyChainTradeTransaction(
         applicable_header_trade_agreement=applicable_header_trade_agreement,
         applicable_header_trade_delivery=applicable_header_trade_delivery,
         applicable_header_trade_settlement=applicable_header_trade_settlement,
@@ -386,10 +390,14 @@ def build_minimal_basic_invoice(
     `invoice_currency`: required and preset with "EUR" as default.
     `invoice_type_code`: defaults to commercial invoice ("380")
     """
+    the_buyer_reference = BuyerReference(buyer_reference) if buyer_reference else None
+
+    tax_basis_value = tax_basis_total_amount if tax_basis_total_amount else line_total_amount
+    tax_basis_total = TaxBasisTotalAmount(value=tax_basis_value)
 
     applicable_trade_taxes = [
         ApplicableTradeTax.from_basic_profile(
-            basis_amount=tax_basis_total_amount,
+            basis_amount=tax_basis_value,
             rate_applicable_percent=rate_applicable_percent,
             calculated_amount=tax_total_amount,
             category_code=tax_category_code,
@@ -400,10 +408,7 @@ def build_minimal_basic_invoice(
     tax_totals = [TaxTotalAmount(value=tax_total_amount, currency_id=invoice_currency_code)]
     grand_total = GrandTotalAmount(value=grand_total_amount)
 
-    the_buyer_reference = BuyerReference(buyer_reference) if buyer_reference else None
 
-    tax_basis_value = tax_basis_total_amount if tax_basis_total_amount else line_total_amount
-    tax_basis_total = TaxBasisTotalAmount(value=tax_basis_value)
 
     if not due_payable_amount:
         due_payable_amount = grand_total_amount

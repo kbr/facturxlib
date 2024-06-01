@@ -10,7 +10,7 @@ from .nodes.exchange import (
     ExchangedDocument,
     ExchangedDocumentContext,
 )
-from .transaction.supplychain import SupplyChainTradeTransAction
+from .transaction.supplychain import SupplyChainTradeTransaction
 
 DEFAULT_XML_HEADER = "<?xml version='1.0' encoding='UTF-8' ?>"
 
@@ -28,7 +28,7 @@ class CrossIndustryInvoice:
 
     exchanged_document_context: ExchangedDocumentContext
     exchanged_document: ExchangedDocument
-    supply_chain_trade_transaction: SupplyChainTradeTransAction
+    supply_chain_trade_transaction: SupplyChainTradeTransaction
 
     _node_attributes = {
         "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
@@ -59,7 +59,7 @@ class CrossIndustryInvoice:
 def build_invoice(
     exchanged_document_context: ExchangedDocumentContext,
     exchanged_document: ExchangedDocument,
-    supply_chain_trade_transaction: SupplyChainTradeTransAction,
+    supply_chain_trade_transaction: SupplyChainTradeTransaction,
     xml_header=DEFAULT_XML_HEADER,
 ):
     """

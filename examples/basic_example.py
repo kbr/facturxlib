@@ -18,6 +18,7 @@ from facturxlib.basic import (
     GrandTotalAmount,
     TaxBasisTotalAmount,
     TaxTotalAmount,
+    SpecifiedTradePaymentTerms,
 )
 
 
@@ -82,6 +83,30 @@ def run_basic_example():
         )
     ]
 
+    # define the summation of item prices and taxes:
+    # tax_total_amounts is a sequence; for every tax rate
+    # there must be a separate breakdown.
+    line_total_amount="370.00"
+    tax_basis_total_amount=TaxBasisTotalAmount("370.00")
+    tax_total_amounts=[TaxTotalAmount("70.30", currency_id="EUR")]  # example for optional currency
+    grand_total_amount=GrandTotalAmount("440.30")
+    due_payable_amount="440.30"
+
+    # if due_payable_amount is > 0, then the
+    # SpecifiedTradePaymentTerms must be given as a sequence,
+    # because multiple terms can be specified:
+    description = "Der Gesamtbetrag is innerhalb von 14 Tagen fällig"
+    due_date = "20240516"
+    specified_trade_payment_terms = [
+        SpecifiedTradePaymentTerms.from_basic_data(description=description, due_date=due_date)
+    ]
+
+    # after preparation of all arguments pass these to the `build_basic_invoice`
+    # function. It is up to the preparation that all arguments are consistent and
+    # according to the factur-x business-rules.
+    # In case of doubt take one of the schematrons (from the factur-x documentation)
+    # to test special cases.
+    # The result is a string in xml-format representing the invoice.
     result = build_basic_invoice(
         invoice_id=invoice_id,
         invoice_issue_date=invoice_issue_date,
@@ -90,14 +115,15 @@ def run_basic_example():
         seller=seller,
         basic_line_items=basic_line_items,
         applicable_trade_taxes=applicable_trade_taxes,
-        line_total_amount="370.00",
-        tax_basis_total_amount=TaxBasisTotalAmount("370.00"),
-        tax_total_amounts=[TaxTotalAmount("70.30", currency_id="EUR")],  # example for optional currency
-        grand_total_amount=GrandTotalAmount("440.30"),
-        due_payable_amount="440.30"
+        line_total_amount=line_total_amount,
+        tax_basis_total_amount=tax_basis_total_amount,
+        tax_total_amounts=tax_total_amounts,  # example for optional currency
+        grand_total_amount=grand_total_amount,
+        due_payable_amount=due_payable_amount,
+        specified_trade_payment_terms=specified_trade_payment_terms,
     )
 
-    print(f"\n{result}\n")
+    print(result)
 
 
 if __name__ == "__main__":

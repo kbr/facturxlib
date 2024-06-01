@@ -9,8 +9,8 @@ from .tradesettlement import ApplicableHeaderTradeSettlement
 
 
 @dataclass
-@cii_node("ram")
-class SupplyChainTradeTransAction:
+@cii_node("rsm")
+class SupplyChainTradeTransaction:
     """
     Root node for a factur-x invoice. Collects and renders all required subnodes.
     """
