@@ -398,12 +398,12 @@ def build_minimal_basic_invoice(
     ]
 
     tax_totals = [TaxTotalAmount(value=tax_total_amount, currency_id=invoice_currency_code)]
-    grand_total = GrandTotalAmount(value=grand_total_amount, currency_id=invoice_currency_code)
+    grand_total = GrandTotalAmount(value=grand_total_amount)
 
     the_buyer_reference = BuyerReference(buyer_reference) if buyer_reference else None
 
     tax_basis_value = tax_basis_total_amount if tax_basis_total_amount else line_total_amount
-    tax_basis_total = TaxBasisTotalAmount(value=tax_basis_value, currency_id=invoice_currency_code)
+    tax_basis_total = TaxBasisTotalAmount(value=tax_basis_value)
 
     if not due_payable_amount:
         due_payable_amount = grand_total_amount

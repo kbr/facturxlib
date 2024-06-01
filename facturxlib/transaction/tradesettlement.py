@@ -47,6 +47,9 @@ from ..nodes.tradeparty import (
 )
 
 
+DEFAULT_ZERO = "0.00"
+
+
 @cii_node("udt")
 class AccountName(ValueClass):
     """Payment account name."""
@@ -408,11 +411,11 @@ class SpecifiedTradeSettlementHeaderMonetarySummation:
     tax_basis_total_amount: TaxBasisTotalAmount
     grand_total_amount: GrandTotalAmount
     due_payable_amount: DuePayableAmount
-    charge_total_amount: Optional[ChargeTotalAmount] = None
-    allowance_total_amount: Optional[AllowanceTotalAmount] = None
+    charge_total_amount: ChargeTotalAmount = ChargeTotalAmount(DEFAULT_ZERO)
+    allowance_total_amount: AllowanceTotalAmount = AllowanceTotalAmount(DEFAULT_ZERO)
     tax_total_amounts: Optional[Sequence[TaxTotalAmount]] = field(default_factory=list)
-    rounding_amount: Optional[RoundingAmount] = None
-    total_prepaid_amount: Optional[TotalPrepaidAmount] = None
+    rounding_amount: RoundingAmount = RoundingAmount(DEFAULT_ZERO)
+    total_prepaid_amount: TotalPrepaidAmount = TotalPrepaidAmount(DEFAULT_ZERO)
 
     _render_selection = """\
         line_total_amount
