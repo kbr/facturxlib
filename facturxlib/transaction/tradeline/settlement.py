@@ -108,8 +108,9 @@ class ApplicableTradeTax:
         else:
             rate_applicable_percent = None
         return cls(
-            category_code=CategoryCode(basic_line_item.category_code), type_code=TypeCode(basic_line_item.type_code),
-            rate_applicable_percent=rate_applicable_percent
+            category_code=CategoryCode(basic_line_item.category_code),
+            type_code=TypeCode(basic_line_item.type_code),
+            rate_applicable_percent=rate_applicable_percent,
         )
 
 

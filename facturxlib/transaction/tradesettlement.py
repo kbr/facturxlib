@@ -694,7 +694,7 @@ class SpecifiedTradePaymentTerms:
     payee_trade_partys: Optional[Sequence[PayeeTradeParty]] = field(default_factory=list)
 
     @classmethod
-    def from_basic_data(cls, description:str="", due_date:str=""):
+    def from_basic_data(cls, description: str = "", due_date: str = ""):
         """
         Convenience constructor from most basic data.
         """
@@ -703,15 +703,11 @@ class SpecifiedTradePaymentTerms:
         else:
             description_instance = None
         if due_date:
-            due_date_date_time=DueDateDateTime(date_time_string=DateTimeString(value=due_date))
+            due_date_date_time = DueDateDateTime(date_time_string=DateTimeString(value=due_date))
         else:
             due_date_date_time = None
 
-        return cls(
-            description=description_instance,
-            due_date_date_time=due_date_date_time
-        )
-
+        return cls(description=description_instance, due_date_date_time=due_date_date_time)
 
 
 @dataclass

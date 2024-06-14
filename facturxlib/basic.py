@@ -146,16 +146,72 @@ class BasicLineItem:
     specified_trade_allowance_charges: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(default_factory=list)
 
     @classmethod
-    def from_minimal_data(cls, line_id: str, name: str, net_price: str):
+    def from_partial_data(
+        cls,
+        line_id: str,
+        name: str,
+        charge_amount: str,
+        rate_applicable_percent: str,
+        basis_quantity: str = "1",
+        line_total_amount: str = "",
+        billed_quantity: Optional[str] = None,
+        billed_quantity_unit_code: str = DEFAULT_QUANTITY_UNIT_CODE,
+        basis_quantity_unit_code: str = DEFAULT_QUANTITY_UNIT_CODE,
+        type_code: str = DEFAULT_TAX_TYPE_CODE,
+        category_code: str = DEFAULT_TAX_CATEGORY_CODE,
+        global_id: Optional[str] = None,
+        global_id_scheme_id: Optional[str] = None,
+        specified_trade_allowance_charges: Optional[Sequence[SpecifiedTradeAllowanceCharge]] = field(
+            default_factory=list
+        ),
+    ):
         """
-        Constructor based on minimal required data. `charge_amount` and
-        `line_total_amount` are set the the `net_price` and the
-        `billed_quantity` is fixed to 1.
-        All other data are set to the default values.
+        Constructor based on partial required data.
+        `line_id`, `name`, `charge_amount` and `rate_applicable_percent`
+        are required. `basis_quantity` is set to 1 and if not value is
+        given to `billed_quantity` it is set to the value from
+        `basis_quantity`. If `line_total_amount` is not given it is set
+        to the value from `charge_amount` assuming basis- and billed
+        quantity are set to 1. It is up to the application to consistent
+        arguments. All other arguments stay on the default-values
+        defined at class level.
         """
+        if not line_total_amount:
+            line_total_amount = charge_amount
+        if not billed_quantity:
+            billed_quantity = basis_quantity
+
         return cls(
-            line_id=line_id, name=name, charge_amount=net_price, line_total_amount=net_price, basis_quantity="1"
+            line_id=line_id,
+            name=name,
+            charge_amount=charge_amount,
+            rate_applicable_percent=rate_applicable_percent,
+            basis_quantity=basis_quantity,
+            line_total_amount=line_total_amount,
+            billed_quantity=billed_quantity,
+            billed_quantity_unit_code=billed_quantity_unit_code,
+            basis_quantity_unit_code=basis_quantity_unit_code,
+            type_code=type_code,
+            category_code=category_code,
+            global_id=global_id,
+            global_id_scheme_id=global_id_scheme_id,
+            specified_trade_allowance_charges=specified_trade_allowance_charges,
         )
+
+    @classmethod
+    def from_minimal_data(cls, line_id: str, name: str, charge_amount: str, **kwargs):
+        """
+        Variant of `from_partial_data` that allows to ommit the
+        `rate_applicable_percent` argument. This can be used in
+        combination with the `build_minimal_basic_invoice` function
+        which checks for the missing argument and substitutes it with
+        the `rate_applicable_percent` argument given there. This can be
+        used as a shortcut the create simple invoices where all items
+        have the same tax-rate.
+        """
+        if not "rate_applicable_percent" in kwargs:
+            kwargs["rate_applicable_percent"] = None
+        return cls.from_partial_data(line_id=line_id, name=name, charge_amount=charge_amount, **kwargs)
 
 
 def build_basic_invoice(
@@ -348,6 +404,8 @@ def build_minimal_basic_invoice(
     tax_type_code: str = DEFAULT_TAX_TYPE_CODE,
     invoice_currency_code: str = DEFAULT_INVOICE_CURRENCY,
     invoice_type_code: str = DEFAULT_INVOICE_TYPE_CODE,
+    due_date: str = "",
+    description: str = "",
 ):
     """
     Simplified version of `build_basic_invoice`. It makes the assumption
@@ -392,6 +450,11 @@ def build_minimal_basic_invoice(
     """
     the_buyer_reference = BuyerReference(buyer_reference) if buyer_reference else None
 
+    # subsitute missing rate_applicable_percent values on BasicLineItem instances:
+    for basic_line_item in basic_line_items:
+        if basic_line_item.rate_applicable_percent is None:
+            basic_line_item.rate_applicable_percent = rate_applicable_percent
+
     tax_basis_value = tax_basis_total_amount if tax_basis_total_amount else line_total_amount
     tax_basis_total = TaxBasisTotalAmount(value=tax_basis_value)
 
@@ -408,10 +471,12 @@ def build_minimal_basic_invoice(
     tax_totals = [TaxTotalAmount(value=tax_total_amount, currency_id=invoice_currency_code)]
     grand_total = GrandTotalAmount(value=grand_total_amount)
 
-
-
     if not due_payable_amount:
         due_payable_amount = grand_total_amount
+
+    specified_trade_payment_terms = [
+        SpecifiedTradePaymentTerms.from_basic_data(description=description, due_date=due_date)
+    ]
 
     return build_basic_invoice(
         invoice_id=invoice_id,
@@ -429,4 +494,5 @@ def build_minimal_basic_invoice(
         agreement_buyer_reference=the_buyer_reference,
         invoice_currency_code=invoice_currency_code,
         invoice_type_code=invoice_type_code,
+        specified_trade_payment_terms=specified_trade_payment_terms,
     )
