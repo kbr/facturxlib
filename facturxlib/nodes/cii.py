@@ -11,7 +11,7 @@ DO_NOT_RENDER_ON_EMPTY_VALUE = "_do_not_render_on_empty_value"
 
 def cii_node(namespace=None):
     """
-    Class decorator to make classes to renderable nodes.
+    Class decorator to make classes renderable nodes.
     """
 
     def get_node(self, parent):
