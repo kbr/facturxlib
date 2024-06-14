@@ -209,9 +209,57 @@ class BasicLineItem:
         used as a shortcut the create simple invoices where all items
         have the same tax-rate.
         """
-        if not "rate_applicable_percent" in kwargs:
+        if "rate_applicable_percent" not in kwargs:
             kwargs["rate_applicable_percent"] = None
         return cls.from_partial_data(line_id=line_id, name=name, charge_amount=charge_amount, **kwargs)
+
+
+@dataclass
+class MinimalInvoiceHeader:
+    invoice_id: str
+    invoice_issue_date: str
+    delivery_occurence_date: str
+
+
+@dataclass
+class MinimalInvoiceTotal:
+    line_total_amount: str
+    rate_applicable_percent: str
+    tax_total_amount: str
+    grand_total_amount: str
+    due_date: str
+
+
+@dataclass
+class MinimalInvoice:
+    """
+    Wrapper to hold the minimal dataset for an invoice supporting the
+    BASIC profile. This is a utility class to make it easier for simple
+    scenarios to prepare the building blocks.
+    """
+
+    seller: BasicTradeParty
+    buyer: BasicTradeParty
+    header: MinimalInvoiceHeader
+    basic_line_items: Sequence[BasicLineItem]
+    total: MinimalInvoiceTotal
+
+    def build(self):
+        """
+        Returns the invoice as string in XML format.
+        """
+        return build_minimal_basic_invoice(
+            invoice_id=self.header.invoice_id,
+            invoice_issue_date=self.header.invoice_issue_date,
+            buyer=self.buyer,
+            seller=self.seller,
+            basic_line_items=self.basic_line_items,
+            line_total_amount=self.total.line_total_amount,
+            rate_applicable_percent=self.total.rate_applicable_percent,
+            tax_total_amount=self.total.tax_total_amount,
+            grand_total_amount=self.total.grand_total_amount,
+            due_date=self.total.due_date,
+        )
 
 
 def build_basic_invoice(
@@ -395,7 +443,7 @@ def build_minimal_basic_invoice(
     rate_applicable_percent: str,
     tax_total_amount: str,
     grand_total_amount: str,
-    basic_line_items: Optional[Sequence[BasicLineItem]] = field(default_factory=list),
+    basic_line_items: Sequence[BasicLineItem],
     delivery_occurence_date: Optional[str] = None,
     buyer_reference: Optional[str] = None,
     due_payable_amount: str = "",
@@ -424,6 +472,8 @@ def build_minimal_basic_invoice(
     `rate_applicable_percent`: the invoice tax rate in percent, like "19.00".
     `tax_total_amount`: The total of the taxes.
     `grand_total_amount`: the total of the invoice including taxes.
+    `basic_line_items`: Sequence of BasicLineItems. This is optional by definition,
+            but it makes no sense to have an invoice without line-items.
 
     optional but mandatory in Germany:
     `delivery_occurence_date`: this value (as "CCYYMMDD") is optional
@@ -435,8 +485,6 @@ def build_minimal_basic_invoice(
             argument.
 
     optional:
-    `basic_line_items`: Sequence of BasicLineItems. This is optional by definition,
-            even if an invoice makes rarely sense without line-items.
     `buyer_reference`: an id assigned by the buyer (like SAP number)
     `due_payable_amount`: the amount due for payment as string (like "0.00").
             If not given the value is taken from `grand_total_amount`.
