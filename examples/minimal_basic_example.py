@@ -6,7 +6,6 @@ Example file for the BASIC profile with the required nodes.
 All financial numbers must be provided as strings, because the library
 does no automatic conversion or calculation. This ensurees to keep all
 data in sync with the original calculation.
-
 """
 
 
