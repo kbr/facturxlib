@@ -1,5 +1,15 @@
 """
 Interface for the BASIC profile.
+
+The function `build_basic_invoice` takes all required and optional
+arguments to build the XML according to the BASIC profile. In case not
+all arguments are used the function `build_minimal_basic_invoice`
+provides a simpler interface.
+
+For the common usecase of smaller companies to just provide the seller-
+and buyer-addresses and a list of sold items with a common tax rate, the
+class `MinimalInvoice` can simplifiy the creation of an e-invoice even
+more.
 """
 
 from collections.abc import Iterable
@@ -216,6 +226,10 @@ class BasicLineItem:
 
 @dataclass
 class MinimalInvoiceHeader:
+    """
+    Convenience dataclass for the required header of a minimal BASIC
+    profile invoice.
+    """
     invoice_id: str
     invoice_issue_date: str
     delivery_occurence_date: str
@@ -223,6 +237,10 @@ class MinimalInvoiceHeader:
 
 @dataclass
 class MinimalInvoiceTotal:
+    """
+    Convenience dataclass for the required totals of a minimal BASIC
+    profile invoice.
+    """
     line_total_amount: str
     rate_applicable_percent: str
     tax_total_amount: str
@@ -235,7 +253,18 @@ class MinimalInvoice:
     """
     Wrapper to hold the minimal dataset for an invoice supporting the
     BASIC profile. This is a utility class to make it easier for simple
-    scenarios to prepare the building blocks.
+    scenarios to set up the building blocks:
+
+    - `seller` the seller-tradeparty
+    - `buyer` the buyer-tradeparty
+    - `header` the minimal header data
+    - `basic_line_items` a list of line-items
+    - `total` the invoice total data
+
+    After instanciation just call `build` to get the invoice as xml.
+    `build` is a wrapper for the function call
+    `build_minimal_basic_invoice` which in turn is a wrapper for
+    `build_basic_invoice`.
     """
 
     seller: BasicTradeParty
