@@ -562,7 +562,7 @@ class DefinedTradeContact:
     def from_basic_trade_party(cls, basic_trade_party):
         """
         Returns an instance with the data provided by a BasicTradeParty
-        instance (defines in facturxlib.basic).
+        instance (defined in facturxlib.basic).
         """
         telephone_universal_communication = None
         fax_universal_communication = None

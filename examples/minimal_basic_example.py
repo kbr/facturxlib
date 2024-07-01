@@ -4,8 +4,8 @@ minimal_basic_example.py
 Example file for the BASIC profile with the required nodes.
 
 All financial numbers must be provided as strings, because the library
-does no automatic conversion or calculation. This ensurees to keep all
-data in sync with the original calculation.
+does no automatic conversion or calculation. This ensures to keep all
+data in sync with the original data.
 """
 
 
@@ -19,6 +19,7 @@ from facturxlib.basic import (
 
 
 def run_minimal_basic_example():
+    # fictional data for example use.
 
     # provide the seller address:
     seller = BasicTradeParty(
@@ -81,7 +82,7 @@ def run_minimal_basic_example():
         due_date = "20240516"
     )
 
-    # forard the minimal data blocks to the MinimalInvoice class
+    # forward the minimal data blocks to the MinimalInvoice class
     # and build the invoice:
     minimal_invoice = MinimalInvoice(
         seller=seller,

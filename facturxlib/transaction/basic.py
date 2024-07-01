@@ -44,8 +44,7 @@ from .tradesettlement import (
 @dataclass
 class PurePostalAdress:
     """
-    Collection class for a TradeParty with an address. Allows to provide
-    the data without knowldge of the faxtur-x inner guts.
+    Collection class for a TradeParty with an address.
 
     required arguments:
     `name`: Name of trade party (buyer/seller etc.)
@@ -223,13 +222,6 @@ class PureBasicTransAction:
         applicable_header_trade_delivery = ApplicableHeaderTradeDelivery(
             actual_delivery_supply_chain_event=actual_delivery_supply_chain_event
         )
-
-        # build the ApplicableHeaderTradeSettlement
-        # for that the monetary summation is needed:
-
-        #         charge_total_amount = ChargeTotalAmount(self.charge_total_amount) if self.charge_total_amount else None
-        #         allowance_total_amount = AllowanceTotalAmount(self.allowance_total_amount) if self.allowance_total_amount else None
-        #         rounding_amount = RoundingAmount(self.rounding_amount) if self.rounding_amount else None
         monetary_summation = SpecifiedTradeSettlementHeaderMonetarySummation(
             line_total_amount=LineTotalAmount(self.line_total_amount),
             tax_basis_total_amount=TaxBasisTotalAmount(self.tax_basis_total_amount, self.invoice_currency),
@@ -241,6 +233,7 @@ class PureBasicTransAction:
             rounding_amount=RoundingAmount(self.rounding_amount),
             total_prepaid_amount=TotalPrepaidAmount(self.total_prepaid_amount),
         )
+
         # prepare the ApplicableTradeTax instances:
         if not self.trade_taxes:
             self.trade_taxes.append(

@@ -4,8 +4,8 @@ test_basic.py
 Example file for the BASIC profile with all required nodes.
 
 All financial numbers must be provided as strings, because the library
-does no automatic conversion or calculation. This ensurees to keep all
-data in sync with the original calculation.
+does no automatic conversion or calculation. This ensures to keep all
+data in sync with the original data.
 
 """
 
@@ -23,6 +23,7 @@ from facturxlib.basic import (
 
 
 def run_basic_example():
+    # fictional data for example use.
 
     invoice_id = "123/2024"
     invoice_issue_date = "20240502"
@@ -71,8 +72,7 @@ def run_basic_example():
     ]
 
 
-    # the BASIC profile allows for multiple trade taxes differing
-    # with the ivoice currency.
+    # the BASIC profile allows for multiple trade taxes
     applicable_trade_taxes = [
         ApplicableTradeTax.from_basic_profile(
             basis_amount="370.00",

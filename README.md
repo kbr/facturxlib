@@ -11,14 +11,16 @@ For the common usecase to just provide the seller- and buyer-addresses and a lis
 
 ## Installation and Dependencies
 
-Install this library by `pip install facturxlib`.
+Install can be done by pip: `pip install facturxlib`.
 
-The `facturxlib` library has no dependencies beside the standard-library.
+The `facturxlib` library has no dependencies beside the Python standard-library.
 
 
 ## Example
 
-The following example shows how to create an e-invoice with a minimal required dataset. It consist of a seller- and buyer-address and a list of sold items all with the same tax rate:
+The following example shows how to create an e-invoice with a minimal required dataset. It consist of a seller- and buyer-address and a list of sold items, all with the same tax rate.
+
+(All data are fictional and provided as strings, including numerical values. This is because the library takes all data "as is" and makes no calculations. The input-data are exactly the output-data.)
 
 ```
 # import the required classes:
@@ -56,7 +58,7 @@ buyer = BasicTradeParty(
 )
 
 
-# provide the header with the running invoice number, the invoice date
+# provide the header with a unique invoice number, the invoice date
 # and date of delivery which is optional by the profile-definition
 # but mandatory in Germany (date-format: CCYYMMDD):
 header = MinimalInvoiceHeader(
@@ -114,7 +116,6 @@ invoice = minimal_invoice.build()
 print(invoice)
 ```
 
-In the example all numeric data must be given as strings. This is because the library takes all data "as is" and makes no calculations. The input-data are exactly the output-data.
 
 ## Output validation
 
@@ -122,18 +123,17 @@ The output are business data for fiscal use and must be correct. To check the co
 
 The example above produces a valid output according to the **EN16931-CII-validation** schematron.
 
-In case the structure of the input data is changed to provide more information in the invoice, the **EN16931-CII-validation** schematron must be applied to the output. Even if the output is valid XML it could be that the e-invoice may not be correct according to the defined business rules of the used profile (BASIC or other).
+In case the structure of the input data is changed to provide more information in the invoice, the **EN16931-CII-validation** schematron should again be applied to the output. Even if the output is valid XML it could be that the e-invoice may not be correct according to the defined business rules of the used profile (BASIC or other).
 
-**The input determines the correctness of the output, even if the library does not raise an error.**
+**The input determines the correctness of the output, even if the library does not raise an error. It is up to the user to provide qualified input-data and test the output for correctness.**
 
-## What next?
+## Next steps
 
-See the `examples` folder for the example files. The function `build_basic_invoice` (in the `facturxlib.basic` module) accepts optional arguments to provide more data in an e-invoice. **Keep in mind to validate the output after every change you may apply**.
+See the `examples` folder for example files. The function `build_basic_invoice` (in the `facturxlib.basic` module) accepts optional arguments to provide more data in an e-invoice. **Keep in mind to validate the output after every applied change**.
 
 For using another profile than BASIC, there is currently no helper function like `build_basic_invoice`. But the library defines all required nodes to build instances of `ExchangedDocumentContext`, `ExchangedDocument` and `SupplyChainTradeTransaction` which are the required input for the `facturx.build_invoice` function, which is the main entry-point of the library.
 
 ## License
 
-Like the schematron-files for the e-invoice verification the facturxlib-library  is published under the **European Union Public License (EUPL-1.2)** (`https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12`) or (`https://opensource.org/license/eupl-1-2`).
-
+TODO: add License
 
