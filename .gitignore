@@ -1,6 +1,7 @@
 .DS_Store
 .mypy_cache
 .nox
+.pytest_cache
 .ruff_cache
 __pycache__
 *.pyc
