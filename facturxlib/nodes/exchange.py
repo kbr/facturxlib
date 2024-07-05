@@ -116,7 +116,7 @@ class ExchangedDocumentContext:
     """
     An aggregation of business terms containing information about the
     business process regarding the rules which are applicable to the
-    invoicing document. Grouping of message based properties
+    invoicing document. Grouping of message based properties.
 
     required:
     `guideline_specified_document_context_parameter`: Specification Identifier.
