@@ -1,3 +1,10 @@
+#
+#  this file is part of the factorxlib package
+#  (c) 2024 Klaus Bremer
+#
+#  License: to define
+#
+
 from dataclasses import dataclass, field
 from typing import Optional, Sequence
 

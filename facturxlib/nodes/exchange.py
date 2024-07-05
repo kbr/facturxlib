@@ -1,3 +1,9 @@
+#
+#  this file is part of the factorxlib package
+#  (c) 2024 Klaus Bremer
+#
+#  License: to define
+#
 """
 Implements the ExchangedDocumentContext and ExchangedDocument nodes as
 well as specific sub-nodes.

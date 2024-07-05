@@ -1,3 +1,9 @@
+#
+#  this file is part of the factorxlib package
+#  (c) 2024 Klaus Bremer
+#
+#  License: to define
+#
 """
 Interface for the BASIC profile.
 
@@ -230,6 +236,7 @@ class MinimalInvoiceHeader:
     Convenience dataclass for the required header of a minimal BASIC
     profile invoice.
     """
+
     invoice_id: str
     invoice_issue_date: str
     delivery_occurence_date: str
@@ -241,6 +248,7 @@ class MinimalInvoiceTotal:
     Convenience dataclass for the required totals of a minimal BASIC
     profile invoice.
     """
+
     line_total_amount: str
     rate_applicable_percent: str
     tax_total_amount: str

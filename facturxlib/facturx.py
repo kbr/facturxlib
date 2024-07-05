@@ -1,3 +1,9 @@
+#
+#  this file is part of the factorxlib package
+#  (c) 2024 Klaus Bremer
+#
+#  License: to define
+#
 """
 EN16931-3-3 conform implementation to build a Factor-X invoice.
 
