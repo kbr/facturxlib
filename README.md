@@ -119,7 +119,7 @@ print(invoice)
 
 ## Output validation
 
-The output are business data for fiscal use and must be correct. To check the correctness the specification sources (`ferd-net.de` and  `fnfe-mpe.org`) provide schematron-data to test the generated XML e-invoice (i.e. by means of `saxon`).
+The output are business data for fiscal use and must be correct by the numbers and the XML-format. Responsibility for the numbers is up to the user, to check the latter the specification sources (`ferd-net.de` and  `fnfe-mpe.org`) provide schematron-data to test the generated XML e-invoice (i.e. by means of `saxon`).
 
 The example above produces a valid output according to the **EN16931-CII-validation** schematron.
 
