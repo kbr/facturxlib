@@ -28,6 +28,10 @@ class ValueClass:
     def __init__(self, value):
         self._value = value
 
+    @property
+    def value(self):
+        return str(self._value)  # value should already be a string
+
 
 class BaseTotalAmount(ValueClass):
     """Base class for rendering an amount with a currency-id."""
