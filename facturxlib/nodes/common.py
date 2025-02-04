@@ -661,19 +661,19 @@ class PostalTradeAddress:
     country_sub_division_name: Optional[CountrySubDivisionName] = None
 
     _suppress_nodes_with_empty_values = """\
+        postcode
         line_one
         line_two
         line_three
-        postcode
         city_name
         country_sub_division_name
     """
 
     _render_selection = """\
+        postcode
         line_one
         line_two
         line_three
-        postcode
         city_name
         country_id
         country_sub_division_name
