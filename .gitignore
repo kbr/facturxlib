@@ -6,7 +6,7 @@
 __pycache__
 *.pyc
 
+build/*
+dist/*
+
 facturxlib.egg*
-test.py
-test_basic.py
-test_pure_basic.py
