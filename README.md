@@ -135,5 +135,4 @@ For using another profile than BASIC, there is currently no helper function like
 
 ## License
 
-TODO: add License
-
+MIT
