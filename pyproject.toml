@@ -5,18 +5,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "facturxlib"
+version = "1.0.1"
+
 keywords = ["Factur-X", "ZUGFeRD", "CrossIndustryInvoice", "xml", "E-Invoice", "E-Rechnung", "X-Rechnung"]
 description = "Library to create Factur-X conform CrossIndustryInvoice xml-files."
 readme = "README.md"
 authors = [
     {name = "Klaus Bremer", email = "bremer@bremer-media.com"}
 ]
-
 license = "MIT"
 license-files = ["LICENSE"]
-
-# version = "attr:facturxlib.__version__"
-dynamic = ["version"]
 
 classifiers = [
    "Development Status :: 4 - Beta",
