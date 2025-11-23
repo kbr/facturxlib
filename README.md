@@ -1,5 +1,9 @@
 # facturxlib
 
+![](https://img.shields.io/pypi/pyversions/facturxlib.svg)
+![](https://img.shields.io/pypi/l/facturxlib.svg)
+
+
 Library to create e-invoices according to the factur-x specification 1.01.06 (and also ZUGFeRD 2.2 without the pdf-representation). The library provides the buildung blocks to create a Cross Industry Invoice (CII or e-invoice) according to EN16931-3-3 and provide the resulting data as XML.
 
 Information about the structur and the documentation of this format as well as schematron-data (for output validation) are available here `https://fnfe-mpe.org/factur-x/factur-x_en/` and here `https://www.ferd-net.de/standards/zugferd-2.2/zugferd-2.2.html`.
