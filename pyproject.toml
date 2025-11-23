@@ -2,10 +2,56 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+
+[project]
+name = "facturxlib"
+keywords = ["Factur-X", "ZUGFeRD", "CrossIndustryInvoice", "xml", "E-Invoice", "E-Rechnung", "X-Rechnung"]
+description = "Library to create Factur-X conform CrossIndustryInvoice xml-files."
+readme = "README.md"
+authors = [
+    {name = "Klaus Bremer", email = "bremer@bremer-media.com"}
+]
+
+license = "MIT"
+license-files = ["LICENSE"]
+
+# version = "attr:facturxlib.__version__"
+dynamic = ["version"]
+
+classifiers = [
+   "Development Status :: 4 - Beta",
+   "Intended Audience :: Developers",
+   "Operating System :: OS Independent",
+   "Programming Language :: Python",
+   "Programming Language :: Python :: 3",
+   "Programming Language :: Python :: 3.9",
+   "Programming Language :: Python :: 3.10",
+   "Programming Language :: Python :: 3.11",
+   "Programming Language :: Python :: 3.12",
+   "Programming Language :: Python :: 3.13",
+   "Programming Language :: Python :: 3.14",
+   "Topic :: Software Development :: Libraries :: Python Modules",
+   "Topic :: Utilities",
+]
+requires-python = ">= 3.9"
+
+
+[project.urls]
+Homapage = "https://github.com/kbr/facturxlib"
+Repository = "https://github.com/kbr/facturxlib"
+Issues = "https://github.com/kbr/facturxlib/issues"
+Changelog = "https://github.com/kbr/facturxlib/blob/master/CHANGELOG.md"
+
+
 [tool.ruff]
 line-length = 120
 indent-width = 4
 
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+
+[tool.setuptools]
+packages = ["facturxlib", "facturxlib.nodes", "facturxlib.transaction", "facturxlib.transaction.tradeline"]

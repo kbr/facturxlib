@@ -3,7 +3,7 @@ Some shorthand imports to set up a factur-x invoice with BASIC profile
 are defined here.
 """
 
-__version__ = "1.0"
+__version__ = "1.0.1"
 
 
 # disable ruff "imported but unused" error
